@@ -8,6 +8,7 @@ import BottomNav from "@/components/layout/BottomNav";
 import FAB from "@/components/layout/FAB";
 import MatrixView from "@/components/matrix/MatrixView";
 import AddTodoModal from "@/components/modals/AddTodoModal";
+import TaskDetailModal from "@/components/modals/TaskDetailModal";
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<TabId>("matrix");
@@ -37,6 +38,11 @@ export default function Home() {
           </div>
         )}
       </main>
+
+      <TaskDetailModal
+        todoId={detailTodoId}
+        onClose={() => setDetailTodoId(null)}
+      />
 
       <AddTodoModal
         isOpen={showAddModal}
