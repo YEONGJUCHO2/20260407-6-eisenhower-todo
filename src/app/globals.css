@@ -1,0 +1,77 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --glass-card-bg: rgba(255, 255, 255, 0.05);
+  --glass-blur: 32px;
+  --obsidian-gradient: radial-gradient(
+    circle at 50% 0%,
+    rgba(173, 198, 255, 0.05) 0%,
+    rgba(19, 19, 23, 0) 70%
+  );
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-family: "Inter", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-color: #131317;
+  color: #e4e1e7;
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+
+/* Glass card utility */
+.glass-card {
+  background: var(--glass-card-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Obsidian gradient overlay */
+.obsidian-gradient {
+  background-image: var(--obsidian-gradient);
+}
+
+/* Scrollbar styling for quadrants */
+.quadrant-scroll::-webkit-scrollbar {
+  width: 2px;
+}
+.quadrant-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.quadrant-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
+}
+
+/* Safe area padding for bottom elements */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20%,
+  60% {
+    transform: translateX(-6px);
+  }
+  40%,
+  80% {
+    transform: translateX(6px);
+  }
+}
