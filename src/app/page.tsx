@@ -10,6 +10,7 @@ import MatrixView from "@/components/matrix/MatrixView";
 import AddTodoModal from "@/components/modals/AddTodoModal";
 import TaskDetailModal from "@/components/modals/TaskDetailModal";
 import CalendarView from "@/components/calendar/CalendarView";
+import ReportView from "@/components/report/ReportView";
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<TabId>("matrix");
@@ -35,11 +36,7 @@ export default function Home() {
             onTaskTap={(id) => setDetailTodoId(id)}
           />
         )}
-        {activeTab === "report" && (
-          <div className="px-lg py-md text-on-surface-variant text-body-md">
-            리포트 뷰 (구현 예정)
-          </div>
-        )}
+        {activeTab === "report" && <ReportView />}
       </main>
 
       <TaskDetailModal
