@@ -9,6 +9,7 @@ import FAB from "@/components/layout/FAB";
 import MatrixView from "@/components/matrix/MatrixView";
 import AddTodoModal from "@/components/modals/AddTodoModal";
 import TaskDetailModal from "@/components/modals/TaskDetailModal";
+import CalendarView from "@/components/calendar/CalendarView";
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<TabId>("matrix");
@@ -22,9 +23,11 @@ export default function Home() {
 
       <main className="flex-1 pb-20">
         {activeTab === "calendar" && (
-          <div className="px-lg py-md text-on-surface-variant text-body-md">
-            캘린더 뷰 (구현 예정)
-          </div>
+          <CalendarView
+            selectedDate={selectedDate}
+            onSelectDate={setSelectedDate}
+            onTaskTap={(id) => setDetailTodoId(id)}
+          />
         )}
         {activeTab === "matrix" && (
           <MatrixView
