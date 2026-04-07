@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { TodoProvider } from "@/providers/TodoProvider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -33,7 +34,9 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="font-body">{children}</body>
+      <body className="font-body">
+        <TodoProvider>{children}</TodoProvider>
+      </body>
     </html>
   );
 }
