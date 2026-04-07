@@ -1,18 +1,22 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useCallback } from "react";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
+import html2canvas from "html2canvas";
 import { useTodoContext } from "@/hooks/useTodos";
-import { getWeekRange, addDays } from "@/lib/date-utils";
+import { getWeekRange, addDays, toDateString } from "@/lib/date-utils";
 import { calculateWeeklyStats } from "@/lib/report-utils";
 import DonutChart from "./DonutChart";
 import PersonalityCard from "./PersonalityCard";
 import AchievementBar from "./AchievementBar";
+import ShareCard from "@/components/share/ShareCard";
 
 export default function ReportView() {
   const { todos } = useTodoContext();
   const [weekOffset, setWeekOffset] = useState(0);
+  const [showShareCard, setShowShareCard] = useState(false);
+  const shareRef = useRef<HTMLDivElement>(null);
 
   const targetDate = useMemo(() => {
     const today = new Date();
@@ -26,6 +30,76 @@ export default function ReportView() {
   );
 
   const weekLabel = `${format(start, "M월 d일", { locale: ko })} ~ ${format(end, "M월 d일", { locale: ko })}`;
+
+  const handleShare = useCallback(async () => {
+    setShowShareCard(true);
+    await new Promise((r) => setTimeout(r, 100));
+
+    if (!shareRef.current) return;
+    try {
+      const canvas = await html2canvas(shareRef.current, {
+        scale: 1,
+        backgroundColor: "#131317",
+        useCORS: true,
+      });
+      const blob = await new Promise<Blob>((resolve) =>
+        canvas.toBlob((b) => resolve(b!), "image/png")
+      );
+
+      const file = new File([blob], "eisenhower-report.png", { type: "image/png" });
+      if (navigator.share && navigator.canShare({ files: [file] })) {
+        await navigator.share({ title: "나의 시간 사용 유형", files: [file] });
+      } else {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "eisenhower-report.png";
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+    } catch {
+      // User cancelled or error
+    }
+    setShowShareCard(false);
+  }, []);
+
+  const handleExportMD = useCallback(() => {
+    const lines: string[] = [];
+    lines.push(`# ${weekLabel}\n`);
+
+    const quadrantLabels = { do: "즉시 실행", plan: "계획 수립", delegate: "위임", delete: "제거" };
+    const dateStrings: string[] = [];
+    const d = new Date(start);
+    while (d <= end) {
+      dateStrings.push(toDateString(d));
+      d.setDate(d.getDate() + 1);
+    }
+
+    const weekTodos = todos.filter((t) => dateStrings.includes(t.date));
+
+    (["do", "plan", "delegate", "delete"] as const).forEach((qId) => {
+      const qTodos = weekTodos.filter((t) => t.quadrant === qId);
+      if (qTodos.length === 0) return;
+      lines.push(`## ${quadrantLabels[qId]}\n`);
+      qTodos.forEach((t) => {
+        const check = t.completed ? "x" : " ";
+        const repeat = t.repeat !== "none" ? " (반복)" : "";
+        lines.push(`- [${check}] ${t.title}${repeat}`);
+      });
+      lines.push("");
+    });
+
+    lines.push(`---`);
+    lines.push(`유형: ${stats.personalityType.name}`);
+
+    const blob = new Blob([lines.join("\n")], { type: "text/markdown" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `eisenhower-${format(start, "yyyy-MM-dd")}.md`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [todos, start, end, weekLabel, stats]);
 
   return (
     <div className="px-lg py-4 max-w-md mx-auto space-y-8">
@@ -84,7 +158,46 @@ export default function ReportView() {
               </div>
             </section>
           )}
+
+          {/* Action buttons */}
+          <div className="flex gap-3">
+            <button
+              onClick={handleShare}
+              className="flex-1 py-3 rounded-full glass-card text-body-md font-medium text-on-surface flex items-center justify-center gap-2"
+            >
+              <span className="material-symbols-outlined text-[18px]">share</span>
+              공유하기
+            </button>
+            <button
+              onClick={handleExportMD}
+              className="flex-1 py-3 rounded-full glass-card text-body-md font-medium text-on-surface flex items-center justify-center gap-2"
+            >
+              <span className="material-symbols-outlined text-[18px]">download</span>
+              마크다운
+            </button>
+          </div>
         </>
+      )}
+
+      {/* Hidden share card for capture */}
+      {showShareCard && (
+        <div className="fixed -left-[9999px] top-0">
+          <ShareCard
+            ref={shareRef}
+            personalityName={stats.personalityType.name}
+            personalityIcon={stats.personalityType.icon}
+            ratios={stats.ratios}
+            recurringRate={
+              stats.recurringTasks.length > 0
+                ? Math.round(
+                    (stats.recurringTasks.reduce((sum, t) => sum + t.achieved, 0) /
+                      stats.recurringTasks.reduce((sum, t) => sum + t.total, 0)) * 100
+                  )
+                : 0
+            }
+            quote={stats.personalityType.advice}
+          />
+        </div>
       )}
     </div>
   );
