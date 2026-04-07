@@ -10,6 +10,7 @@ import {
 } from "react";
 import { Todo, Quadrant, RepeatType } from "@/lib/types";
 import { loadTodos, saveTodos } from "@/lib/storage";
+import { generateRecurringForDate, parseISO } from "@/lib/date-utils";
 
 interface TodoState {
   todos: Todo[];
@@ -191,18 +192,30 @@ export function TodoProvider({ children }: { children: ReactNode }) {
   );
 
   const getTodosForDate = useCallback(
-    (date: string) =>
-      state.todos
-        .filter((t) => t.date === date)
-        .sort((a, b) => a.order - b.order),
+    (date: string) => {
+      const stored = state.todos.filter((t) => t.date === date);
+      const templates = state.todos.filter((t) => t.repeat !== "none");
+      const generated = generateRecurringForDate(templates, parseISO(date));
+      const storedIds = new Set(stored.map((t) => t.id));
+      const newInstances = generated.filter((g) => !storedIds.has(g.id));
+      return [...stored, ...newInstances].sort((a, b) => a.order - b.order);
+    },
     [state.todos]
   );
 
   const getTodosForQuadrant = useCallback(
-    (quadrant: Quadrant, date: string) =>
-      state.todos
-        .filter((t) => t.quadrant === quadrant && t.date === date)
-        .sort((a, b) => a.order - b.order),
+    (quadrant: Quadrant, date: string) => {
+      const stored = state.todos.filter(
+        (t) => t.quadrant === quadrant && t.date === date
+      );
+      const templates = state.todos.filter((t) => t.repeat !== "none");
+      const generated = generateRecurringForDate(templates, parseISO(date)).filter(
+        (g) => g.quadrant === quadrant
+      );
+      const storedIds = new Set(stored.map((t) => t.id));
+      const newInstances = generated.filter((g) => !storedIds.has(g.id));
+      return [...stored, ...newInstances].sort((a, b) => a.order - b.order);
+    },
     [state.todos]
   );
 

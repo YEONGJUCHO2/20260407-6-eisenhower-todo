@@ -10,7 +10,7 @@ export default function FAB({ onClick }: FABProps) {
   return (
     <motion.button
       onClick={onClick}
-      className="fixed bottom-24 right-6 z-50 w-[52px] h-[52px] rounded-lg flex items-center justify-center bg-gradient-to-br from-quadrant-plan-container to-[#0450b0] shadow-[0_4px_16px_rgba(5,102,217,0.4)]"
+      className="fixed bottom-24 right-6 z-50 w-[52px] h-[52px] rounded-full flex items-center justify-center bg-gradient-to-br from-quadrant-plan-container to-[#0450b0] shadow-[0_4px_16px_rgba(5,102,217,0.4)]"
       whileTap={{ scale: 0.92 }}
       transition={{ type: "spring", stiffness: 400, damping: 25 }}
       aria-label="할 일 추가"

@@ -45,6 +45,7 @@ export default function DayTaskList({
                     e.stopPropagation();
                     toggleComplete(todo.id);
                   }}
+                  aria-label={todo.completed ? "완료 취소" : "완료"}
                   className="flex-shrink-0 w-5 h-5 rounded-full border-[1.5px] flex items-center justify-center"
                   style={{
                     borderColor: todo.completed

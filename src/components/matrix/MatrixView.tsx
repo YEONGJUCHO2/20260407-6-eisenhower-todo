@@ -6,6 +6,7 @@ import {
   DragOverlay,
   DragStartEvent,
   DragEndEvent,
+  DragOverEvent,
   closestCenter,
   PointerSensor,
   TouchSensor,
@@ -42,7 +43,7 @@ export default function MatrixView({ date, onTaskTap }: MatrixViewProps) {
     setActiveId(event.active.id as string);
   }
 
-  function handleDragOver(event: any) {
+  function handleDragOver(event: DragOverEvent) {
     const over = event.over;
     if (!over) {
       setOverQuadrant(null);

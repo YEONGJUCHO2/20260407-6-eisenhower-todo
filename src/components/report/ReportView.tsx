@@ -185,7 +185,6 @@ export default function ReportView() {
           <ShareCard
             ref={shareRef}
             personalityName={stats.personalityType.name}
-            personalityIcon={stats.personalityType.icon}
             ratios={stats.ratios}
             recurringRate={
               stats.recurringTasks.length > 0

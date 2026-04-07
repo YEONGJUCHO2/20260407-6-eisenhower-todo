@@ -16,7 +16,7 @@ import {
   addDays,
 } from "date-fns";
 import { ko } from "date-fns/locale";
-import { Todo, RepeatType } from "./types";
+import { Todo } from "./types";
 
 export function formatDateKR(date: Date): string {
   return format(date, "M월 d일 EEEE", { locale: ko });

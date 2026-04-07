@@ -6,14 +6,13 @@ import { QUADRANTS, QUADRANT_ORDER } from "@/lib/constants";
 
 interface ShareCardProps {
   personalityName: string;
-  personalityIcon: string;
   ratios: Record<Quadrant, number>;
   recurringRate: number;
   quote: string;
 }
 
 const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(
-  ({ personalityName, personalityIcon, ratios, recurringRate, quote }, ref) => {
+  ({ personalityName, ratios, recurringRate, quote }, ref) => {
     return (
       <div
         ref={ref}
