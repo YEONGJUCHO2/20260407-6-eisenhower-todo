@@ -7,6 +7,7 @@ import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
 import FAB from "@/components/layout/FAB";
 import MatrixView from "@/components/matrix/MatrixView";
+import AddTodoModal from "@/components/modals/AddTodoModal";
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<TabId>("matrix");
@@ -36,6 +37,12 @@ export default function Home() {
           </div>
         )}
       </main>
+
+      <AddTodoModal
+        isOpen={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        defaultDate={selectedDate}
+      />
 
       <FAB onClick={() => setShowAddModal(true)} />
       <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
