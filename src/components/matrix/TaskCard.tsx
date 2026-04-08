@@ -72,6 +72,13 @@ export default function TaskCard({ todo, onTap }: TaskCardProps) {
           {todo.title}
         </span>
 
+        {/* Time badge */}
+        {todo.startTime && todo.endTime && (
+          <span className="text-[10px] text-outline">
+            {todo.startTime}-{todo.endTime}
+          </span>
+        )}
+
         {/* Repeat badge */}
         {todo.repeat !== "none" && (
           <span className="text-[10px] text-outline border border-white/10 px-1.5 py-0.5 rounded-sm">
