@@ -214,43 +214,58 @@ function TimelineBar({
   }
 
   return (
-    <div className="mb-5 bg-surface-container-low rounded-lg p-3">
+    <div className="mb-5 bg-surface-container-low rounded-lg p-3 overflow-hidden">
       {/* Hour labels */}
       <div className="relative h-5 mb-1">
-        {hours.map((h) => (
+        {hours.map((h, i) => (
           <span
             key={h}
-            className="absolute text-[10px] font-medium text-on-surface-variant -translate-x-1/2"
-            style={{ left: `${((h - startHour) / totalHours) * 100}%` }}
+            className="absolute text-[10px] font-medium text-on-surface-variant"
+            style={{
+              left: `${((h - startHour) / totalHours) * 100}%`,
+              transform: i === hours.length - 1 ? "translateX(-100%)" : i === 0 ? "none" : "translateX(-50%)",
+            }}
           >
             {h}시
           </span>
         ))}
       </div>
 
-      {/* Timeline track */}
-      <div className="relative bg-surface-container-highest rounded-full h-[8px] mb-3">
+      {/* Timeline with vertical grid lines spanning full height */}
+      <div className="relative">
+        {/* Vertical grid lines — full height behind track + bars */}
         {hours.map((h) => (
           <div
             key={h}
-            className="absolute top-0 bottom-0 w-px bg-outline/30"
+            className="absolute top-0 bottom-0 w-px bg-outline/15 z-0"
             style={{ left: `${((h - startHour) / totalHours) * 100}%` }}
           />
         ))}
-      </div>
 
-      {/* Task bars — draggable */}
-      <div className="space-y-[2px]">
-        {scheduled.map((todo) => (
-          <DraggableBar
-            key={todo.id}
-            todo={todo}
-            onUpdate={onUpdate}
-            onTap={onTap}
-            startHour={startHour}
-            endHour={endHour}
-          />
-        ))}
+        {/* Timeline track */}
+        <div className="relative bg-surface-container-highest rounded-full h-[8px] mb-2 z-[1]">
+          {hours.map((h) => (
+            <div
+              key={h}
+              className="absolute top-0 bottom-0 w-px bg-outline/30"
+              style={{ left: `${((h - startHour) / totalHours) * 100}%` }}
+            />
+          ))}
+        </div>
+
+        {/* Task bars — draggable */}
+        <div className="space-y-[2px] relative z-[1]">
+          {scheduled.map((todo) => (
+            <DraggableBar
+              key={todo.id}
+              todo={todo}
+              onUpdate={onUpdate}
+              onTap={onTap}
+              startHour={startHour}
+              endHour={endHour}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );
