@@ -13,6 +13,8 @@ export interface Todo {
   repeatDays?: number[]; // 0=Sun..6=Sat for weekly
   repeatDate?: number; // 1-31 for monthly
   repeatMonth?: number; // 0-11 for yearly
+  startTime?: string; // "HH:mm" (예: "09:00")
+  endTime?: string;   // "HH:mm" (예: "11:00")
   memo: string;
   createdAt: string; // ISO datetime
   order: number; // sort order within quadrant

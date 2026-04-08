@@ -100,6 +100,8 @@ interface TodoContextValue {
     repeatDays?: number[];
     repeatDate?: number;
     repeatMonth?: number;
+    startTime?: string;
+    endTime?: string;
     memo?: string;
   }) => void;
   updateTodo: (id: string, updates: Partial<Todo>) => void;
@@ -138,6 +140,8 @@ export function TodoProvider({ children }: { children: ReactNode }) {
       repeatDays?: number[];
       repeatDate?: number;
       repeatMonth?: number;
+      startTime?: string;
+      endTime?: string;
       memo?: string;
     }) => {
       const todosInQuadrant = state.todos.filter(
@@ -154,6 +158,8 @@ export function TodoProvider({ children }: { children: ReactNode }) {
         repeatDays: params.repeatDays,
         repeatDate: params.repeatDate,
         repeatMonth: params.repeatMonth,
+        startTime: params.startTime,
+        endTime: params.endTime,
         memo: params.memo ?? "",
         createdAt: new Date().toISOString(),
         order: todosInQuadrant.length,
