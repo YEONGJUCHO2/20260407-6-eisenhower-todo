@@ -3,13 +3,15 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { markOnboardingDone } from "@/lib/storage";
+import AppLogo from "../common/AppLogo";
+import AxisArrows, { VerticalArrow } from "../matrix/AxisArrows";
 
 const STEPS = [
   {
     title: "아이젠하워 매트릭스",
-    description:
-      "모든 할 일을 긴급/중요로 나눠 4사분면에 배치하세요.\n가장 중요한 건 2사분면 — 여기가 인생을 바꾸는 곳입니다.",
+    description: "할 일을 긴급/중요로 나눠 4가지로 분류하세요",
     icon: "grid_view",
+    custom: true,
   },
   {
     title: "드래그로 재배치",
@@ -54,18 +56,77 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
           transition={{ duration: 0.3, ease: "easeOut" }}
           className="flex flex-col items-center text-center max-w-sm"
         >
-          <span
-            className="material-symbols-outlined text-[64px] text-quadrant-plan-primary mb-8"
-            style={{ fontVariationSettings: "'FILL' 1, 'wght' 300" }}
-          >
-            {current.icon}
-          </span>
-          <h2 className="font-display text-display-md text-on-surface mb-4">
-            {current.title}
-          </h2>
-          <p className="text-body-md text-on-surface-variant whitespace-pre-line leading-relaxed">
-            {current.description}
-          </p>
+          {step === 0 ? (
+            <>
+              <AppLogo size="lg" />
+              <h2 className="font-display text-display-md text-on-surface mt-6 mb-2">
+                {current.title}
+              </h2>
+              <p className="text-body-sm text-on-surface-variant mb-5">
+                {current.description}
+              </p>
+
+              {/* Mini matrix diagram */}
+              <div className="w-full max-w-[260px]">
+                <AxisArrows />
+                <div className="flex">
+                  <VerticalArrow />
+                  <div className="grid grid-cols-2 gap-1 flex-1">
+                    {([
+                      { label: "DO", desc: "지금 바로\n실행하세요", color: "#ff5451", text: "#ffb3ad", bg: "rgba(255,84,81,0.1)" },
+                      { label: "PLAN", desc: "일정을 잡아\n계획하세요", color: "#0566d9", text: "#adc6ff", bg: "rgba(5,102,217,0.1)" },
+                      { label: "DELEGATE", desc: "다른 사람에게\n맡기세요", color: "#ca8100", text: "#ffb95f", bg: "rgba(202,129,0,0.1)" },
+                      { label: "DELETE", desc: "과감하게\n버리세요", color: "#424754", text: "#8c909f", bg: "rgba(66,71,84,0.1)" },
+                    ]).map((q) => (
+                      <div
+                        key={q.label}
+                        className="rounded-lg p-2"
+                        style={{
+                          background: q.bg,
+                          borderLeft: `2px solid ${q.color}`,
+                        }}
+                      >
+                        <div
+                          className="text-[9px] font-bold uppercase tracking-wider"
+                          style={{ color: q.text }}
+                        >
+                          {q.label}
+                        </div>
+                        <div className="text-[9px] text-on-surface-variant mt-1 whitespace-pre-line leading-tight">
+                          {q.desc}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* PLAN highlight */}
+              <div className="text-center px-3 py-2.5 bg-quadrant-plan-container/10 rounded-lg mt-5 max-w-[260px] w-full">
+                <div className="text-[12px] text-quadrant-plan-primary font-medium">
+                  💡 가장 중요한 건 <strong>PLAN</strong>
+                </div>
+                <div className="text-[11px] text-quadrant-plan-primary/70 mt-1.5">
+                  — 여기가 인생을 바꾸는 곳입니다
+                </div>
+              </div>
+            </>
+          ) : (
+            <>
+              <span
+                className="material-symbols-outlined text-[64px] text-quadrant-plan-primary mb-8"
+                style={{ fontVariationSettings: "'FILL' 1, 'wght' 300" }}
+              >
+                {current.icon}
+              </span>
+              <h2 className="font-display text-display-md text-on-surface mb-4">
+                {current.title}
+              </h2>
+              <p className="text-body-md text-on-surface-variant whitespace-pre-line leading-relaxed">
+                {current.description}
+              </p>
+            </>
+          )}
         </motion.div>
       </AnimatePresence>
 
