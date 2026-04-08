@@ -90,7 +90,7 @@ export default function MatrixView({ date, onTaskTap }: MatrixViewProps) {
         <AxisArrows />
         <div className="flex" style={{ height: "calc(100% - 36px)" }}>
           <VerticalArrow />
-          <div className="grid grid-cols-2 gap-2 flex-1">
+          <div className="grid grid-cols-2 grid-rows-2 gap-2 flex-1">
             {QUADRANT_ORDER.map((q) => (
               <QuadrantBox
                 key={q}

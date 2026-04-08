@@ -36,12 +36,13 @@ export default function QuadrantBox({
   return (
     <div
       ref={setNodeRef}
-      className={`bg-surface-container-low rounded-lg flex flex-col overflow-hidden relative transition-all duration-150 ${
+      className={`rounded-lg flex flex-col overflow-hidden relative transition-all duration-150 ${
         isOver ? "brightness-110" : ""
       }`}
       style={{
         borderLeft: `2px solid ${isOver ? q.primary : q.container}`,
         boxShadow: isOver ? `inset 0 0 20px ${q.primary}10` : "none",
+        backgroundColor: `color-mix(in srgb, ${q.container} 8%, var(--color-surface-container-low))`,
       }}
     >
       {/* Header */}

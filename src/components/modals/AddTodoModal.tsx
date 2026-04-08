@@ -115,7 +115,12 @@ export default function AddTodoModal({
                   setTitle(e.target.value);
                   if (error) setError(false);
                 }}
-                onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleSubmit();
+                  }
+                }}
                 placeholder="무엇을 해야 하나요?"
                 className={`w-full bg-surface-container-high text-on-surface text-body-lg px-4 py-3 rounded-sm outline-none placeholder:text-outline transition-all ${
                   error

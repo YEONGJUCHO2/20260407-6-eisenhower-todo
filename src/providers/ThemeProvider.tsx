@@ -10,7 +10,7 @@ interface ThemeContextValue {
 }
 
 const ThemeContext = createContext<ThemeContextValue>({
-  theme: "system",
+  theme: "dark",
   resolved: "dark",
   setTheme: () => {},
 });
@@ -25,14 +25,15 @@ function getSystemTheme(): "light" | "dark" {
 }
 
 export default function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<ThemeMode>("system");
+  const [theme, setThemeState] = useState<ThemeMode>("dark");
   const [resolved, setResolved] = useState<"light" | "dark">("dark");
 
   useEffect(() => {
     const saved = loadTheme();
     setThemeState(saved);
-    setResolved(saved === "system" ? getSystemTheme() : saved);
-    document.documentElement.setAttribute("data-theme", saved === "system" ? getSystemTheme() : saved);
+    const r = saved === "system" ? "dark" : saved;
+    setResolved(r);
+    document.documentElement.setAttribute("data-theme", r);
   }, []);
 
   useEffect(() => {

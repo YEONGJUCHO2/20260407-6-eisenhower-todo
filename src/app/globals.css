@@ -15,14 +15,14 @@
   --color-on-surface-variant: #615d59;
   --color-outline: #a39e98;
   --color-border: rgba(0, 0, 0, 0.1);
-  --color-q-do-primary: #c0342f;
-  --color-q-do-container: #e03e3b;
-  --color-q-plan-primary: #0054b3;
-  --color-q-plan-container: #0566d9;
-  --color-q-delegate-primary: #9a6400;
-  --color-q-delegate-container: #b37300;
-  --color-q-delete-primary: #555a6b;
-  --color-q-delete-container: #6b7085;
+  --color-q-do-primary: #d32f2f;
+  --color-q-do-container: #ff5451;
+  --color-q-plan-primary: #0d47a1;
+  --color-q-plan-container: #1976d2;
+  --color-q-delegate-primary: #e65100;
+  --color-q-delegate-container: #f57c00;
+  --color-q-delete-primary: #546e7a;
+  --color-q-delete-container: #78909c;
 }
 
 /* Dark mode */

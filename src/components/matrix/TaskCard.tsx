@@ -13,7 +13,7 @@ interface TaskCardProps {
 }
 
 export default function TaskCard({ todo, onTap }: TaskCardProps) {
-  const { toggleComplete } = useTodoContext();
+  const { toggleComplete, deleteTodo } = useTodoContext();
   const q = QUADRANTS[todo.quadrant];
 
   const {
@@ -85,6 +85,19 @@ export default function TaskCard({ todo, onTap }: TaskCardProps) {
             반복
           </span>
         )}
+
+        {/* Delete button */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            deleteTodo(todo.id);
+          }}
+          onPointerDown={(e) => e.stopPropagation()}
+          className="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-outline/40 hover:text-red-400 hover:bg-red-400/10 transition-colors"
+          aria-label="삭제"
+        >
+          <span className="material-symbols-outlined text-[14px]">close</span>
+        </button>
       </motion.div>
     </div>
   );
