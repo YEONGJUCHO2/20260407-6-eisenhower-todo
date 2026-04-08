@@ -17,6 +17,7 @@ import { QUADRANT_ORDER } from "@/lib/constants";
 import { Quadrant, Todo } from "@/lib/types";
 import { useTodoContext } from "@/hooks/useTodos";
 import QuadrantBox from "./QuadrantBox";
+import AxisArrows, { VerticalArrow } from "./AxisArrows";
 
 interface MatrixViewProps {
   date: string;
@@ -85,19 +86,22 @@ export default function MatrixView({ date, onTaskTap }: MatrixViewProps) {
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
     >
-      <div
-        className="grid grid-cols-2 gap-sm px-sm"
-        style={{ height: "calc(100dvh - 148px)" }}
-      >
-        {QUADRANT_ORDER.map((q) => (
-          <QuadrantBox
-            key={q}
-            quadrant={q}
-            date={date}
-            onTaskTap={onTaskTap}
-            isOver={overQuadrant === q}
-          />
-        ))}
+      <div className="px-lg" style={{ height: "calc(100dvh - 148px)" }}>
+        <AxisArrows />
+        <div className="flex" style={{ height: "calc(100% - 36px)" }}>
+          <VerticalArrow />
+          <div className="grid grid-cols-2 gap-2 flex-1">
+            {QUADRANT_ORDER.map((q) => (
+              <QuadrantBox
+                key={q}
+                quadrant={q}
+                date={date}
+                onTaskTap={onTaskTap}
+                isOver={overQuadrant === q}
+              />
+            ))}
+          </div>
+        </div>
       </div>
 
       <DragOverlay dropAnimation={null}>
