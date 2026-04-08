@@ -155,33 +155,38 @@ function DraggableBar({
   return (
     <div
       ref={containerRef}
-      className="relative h-6 flex items-center"
+      className="relative h-9 flex items-center"
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
     >
       <div
-        className="absolute h-5 rounded flex items-center overflow-hidden cursor-grab active:cursor-grabbing"
+        className="absolute h-8 rounded-md flex items-center overflow-hidden cursor-grab active:cursor-grabbing shadow-sm"
         style={{
           left: `${currentLeft}%`,
           width: `${currentWidth}%`,
           backgroundColor: q.container,
-          minWidth: "8px",
+          minWidth: "12px",
+          border: `1px solid color-mix(in srgb, ${q.primary} 40%, transparent)`,
         }}
         onPointerDown={(e) => handlePointerDown(e, "move")}
       >
         {/* Left resize handle */}
         <div
-          className="absolute left-0 top-0 bottom-0 w-2 cursor-ew-resize z-10"
+          className="absolute left-0 top-0 bottom-0 w-3 cursor-ew-resize z-10 flex items-center justify-center"
           onPointerDown={(e) => handlePointerDown(e, "resize-left")}
-        />
-        <span className="text-[8px] text-white font-medium truncate px-1.5 pointer-events-none">
+        >
+          <div className="w-[3px] h-3 rounded-full bg-white/30" />
+        </div>
+        <span className="text-[11px] text-white font-semibold truncate px-4 pointer-events-none drop-shadow-sm">
           {todo.title}
         </span>
         {/* Right resize handle */}
         <div
-          className="absolute right-0 top-0 bottom-0 w-2 cursor-ew-resize z-10"
+          className="absolute right-0 top-0 bottom-0 w-3 cursor-ew-resize z-10 flex items-center justify-center"
           onPointerDown={(e) => handlePointerDown(e, "resize-right")}
-        />
+        >
+          <div className="w-[3px] h-3 rounded-full bg-white/30" />
+        </div>
       </div>
     </div>
   );
@@ -209,26 +214,26 @@ function TimelineBar({
   }
 
   return (
-    <div className="mb-4">
+    <div className="mb-5 bg-surface-container-low rounded-lg p-3">
       {/* Hour labels */}
-      <div className="relative h-4 mb-1">
+      <div className="relative h-5 mb-1">
         {hours.map((h) => (
           <span
             key={h}
-            className="absolute text-[9px] text-outline -translate-x-1/2"
+            className="absolute text-[10px] font-medium text-on-surface-variant -translate-x-1/2"
             style={{ left: `${((h - startHour) / totalHours) * 100}%` }}
           >
-            {h}
+            {h}시
           </span>
         ))}
       </div>
 
       {/* Timeline track */}
-      <div className="relative bg-surface-container-high rounded-full h-[6px] mb-2">
+      <div className="relative bg-surface-container-highest rounded-full h-[8px] mb-3">
         {hours.map((h) => (
           <div
             key={h}
-            className="absolute top-0 bottom-0 w-px bg-outline/20"
+            className="absolute top-0 bottom-0 w-px bg-outline/30"
             style={{ left: `${((h - startHour) / totalHours) * 100}%` }}
           />
         ))}
