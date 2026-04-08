@@ -6,14 +6,46 @@ import { QUADRANTS } from "@/lib/constants";
 import { useTodoContext } from "@/hooks/useTodos";
 import { Todo } from "@/lib/types";
 
-function timeToPercent(time: string): number {
+function timeToMinutes(time: string): number {
   const [h, m] = time.split(":").map(Number);
-  return ((h * 60 + m) / (24 * 60)) * 100;
+  return h * 60 + m;
 }
 
-function percentToTime(pct: number): string {
+function getTimeRange(todos: Todo[]): { startHour: number; endHour: number } {
+  const scheduled = todos.filter((t) => t.startTime && t.endTime);
+  if (scheduled.length === 0) return { startHour: 8, endHour: 20 };
+
+  let minMin = 24 * 60;
+  let maxMin = 0;
+  for (const t of scheduled) {
+    minMin = Math.min(minMin, timeToMinutes(t.startTime!));
+    maxMin = Math.max(maxMin, timeToMinutes(t.endTime!));
+  }
+
+  // 앞뒤 1시간 여유, 1시간 단위 스냅
+  const startHour = Math.max(0, Math.floor(minMin / 60) - 1);
+  const endHour = Math.min(24, Math.ceil(maxMin / 60) + 1);
+  // 최소 6시간 구간 보장
+  if (endHour - startHour < 6) {
+    const mid = (startHour + endHour) / 2;
+    return {
+      startHour: Math.max(0, Math.floor(mid - 3)),
+      endHour: Math.min(24, Math.ceil(mid + 3)),
+    };
+  }
+  return { startHour, endHour };
+}
+
+function timeToPercent(time: string, startHour: number, endHour: number): number {
+  const min = timeToMinutes(time);
+  const rangeMin = endHour * 60 - startHour * 60;
+  return ((min - startHour * 60) / rangeMin) * 100;
+}
+
+function percentToTime(pct: number, startHour: number, endHour: number): string {
   const clamped = Math.max(0, Math.min(100, pct));
-  const totalMin = Math.round((clamped / 100) * 24 * 60);
+  const rangeMin = endHour * 60 - startHour * 60;
+  const totalMin = startHour * 60 + Math.round((clamped / 100) * rangeMin);
   const snapped = Math.round(totalMin / 30) * 30;
   const h = Math.floor(snapped / 60) % 24;
   const m = snapped % 60;
@@ -24,14 +56,18 @@ function DraggableBar({
   todo,
   onUpdate,
   onTap,
+  startHour,
+  endHour,
 }: {
   todo: Todo;
   onUpdate: (id: string, start: string, end: string) => void;
   onTap: (id: string) => void;
+  startHour: number;
+  endHour: number;
 }) {
   const q = QUADRANTS[todo.quadrant];
-  const left = timeToPercent(todo.startTime!);
-  const right = timeToPercent(todo.endTime!);
+  const left = timeToPercent(todo.startTime!, startHour, endHour);
+  const right = timeToPercent(todo.endTime!, startHour, endHour);
   const width = Math.max(right - left, 1);
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -104,14 +140,14 @@ function DraggableBar({
 
     const finalLeft = left + dragOffset.left;
     const finalWidth = width + dragOffset.width;
-    const newStart = percentToTime(finalLeft);
-    const newEnd = percentToTime(finalLeft + finalWidth);
+    const newStart = percentToTime(finalLeft, startHour, endHour);
+    const newEnd = percentToTime(finalLeft + finalWidth, startHour, endHour);
     if (newStart !== newEnd) {
       onUpdate(todo.id, newStart, newEnd);
     }
     dragState.current = null;
     setDragOffset({ left: 0, width: 0 });
-  }, [left, width, dragOffset, todo.id, onUpdate, onTap]);
+  }, [left, width, dragOffset, todo.id, onUpdate, onTap, startHour, endHour]);
 
   const currentLeft = left + dragOffset.left;
   const currentWidth = width + dragOffset.width;
@@ -163,17 +199,24 @@ function TimelineBar({
   const scheduled = todos.filter((t) => t.startTime && t.endTime);
   if (scheduled.length === 0) return null;
 
-  const HOURS = [0, 3, 6, 9, 12, 15, 18, 21, 24];
+  const { startHour, endHour } = getTimeRange(todos);
+  const totalHours = endHour - startHour;
+
+  // 1시간 단위 눈금 생성
+  const hours: number[] = [];
+  for (let h = startHour; h <= endHour; h++) {
+    hours.push(h);
+  }
 
   return (
     <div className="mb-4">
       {/* Hour labels */}
       <div className="relative h-4 mb-1">
-        {HOURS.map((h) => (
+        {hours.map((h) => (
           <span
             key={h}
-            className="absolute text-[8px] text-outline -translate-x-1/2"
-            style={{ left: `${(h / 24) * 100}%` }}
+            className="absolute text-[9px] text-outline -translate-x-1/2"
+            style={{ left: `${((h - startHour) / totalHours) * 100}%` }}
           >
             {h}
           </span>
@@ -182,11 +225,11 @@ function TimelineBar({
 
       {/* Timeline track */}
       <div className="relative bg-surface-container-high rounded-full h-[6px] mb-2">
-        {HOURS.map((h) => (
+        {hours.map((h) => (
           <div
             key={h}
             className="absolute top-0 bottom-0 w-px bg-outline/20"
-            style={{ left: `${(h / 24) * 100}%` }}
+            style={{ left: `${((h - startHour) / totalHours) * 100}%` }}
           />
         ))}
       </div>
@@ -199,6 +242,8 @@ function TimelineBar({
             todo={todo}
             onUpdate={onUpdate}
             onTap={onTap}
+            startHour={startHour}
+            endHour={endHour}
           />
         ))}
       </div>
