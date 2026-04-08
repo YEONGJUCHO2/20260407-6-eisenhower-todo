@@ -31,8 +31,8 @@ export default function AddTodoModal({
   const [error, setError] = useState(false);
   const [repeatDays, setRepeatDays] = useState<number[]>([]);
   const [repeatDate, setRepeatDate] = useState(1);
-  const [startTime, setStartTime] = useState<string | undefined>();
-  const [endTime, setEndTime] = useState<string | undefined>();
+  const [startTime, setStartTime] = useState("09:00");
+  const [endTime, setEndTime] = useState("10:00");
   const [hasTime, setHasTime] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -44,8 +44,8 @@ export default function AddTodoModal({
     setError(false);
     setRepeatDays([]);
     setRepeatDate(1);
-    setStartTime(undefined);
-    setEndTime(undefined);
+    setStartTime("09:00");
+    setEndTime("10:00");
     setHasTime(false);
   };
 
@@ -151,37 +151,22 @@ export default function AddTodoModal({
               />
             </div>
 
-            {/* Time section */}
+            {/* Time section — 펼치면 바로 피커, 시간 조작하면 자동 활성화 */}
             <div className="mt-2">
               <CollapsibleSection
                 icon="⏰"
                 label="시간 설정"
-                summary={hasTime && startTime && endTime ? `⏰ ${startTime} → ${endTime}` : undefined}
+                summary={hasTime ? `⏰ ${startTime} → ${endTime}` : undefined}
               >
-                <div className="space-y-2">
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={hasTime}
-                      onChange={(e) => {
-                        setHasTime(e.target.checked);
-                        if (e.target.checked && !startTime) {
-                          setStartTime("09:00");
-                          setEndTime("10:00");
-                        }
-                      }}
-                      className="rounded"
-                    />
-                    <span className="text-body-sm text-on-surface-variant">시간 지정</span>
-                  </label>
-                  {hasTime && startTime && endTime && (
-                    <TimePicker
-                      startTime={startTime}
-                      endTime={endTime}
-                      onChange={(s, e) => { setStartTime(s); setEndTime(e); }}
-                    />
-                  )}
-                </div>
+                <TimePicker
+                  startTime={startTime}
+                  endTime={endTime}
+                  onChange={(s, e) => {
+                    setStartTime(s);
+                    setEndTime(e);
+                    setHasTime(true);
+                  }}
+                />
               </CollapsibleSection>
             </div>
 

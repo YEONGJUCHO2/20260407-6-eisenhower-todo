@@ -121,37 +121,22 @@ export default function TaskDetailModal({
               />
             </div>
 
-            {/* Time section */}
+            {/* Time section — 펼치면 바로 피커, 조작하면 자동 활성화 */}
             <div className="mt-2 mb-2">
               <CollapsibleSection
                 icon="⏰"
                 label="시간 설정"
-                summary={hasTime && startTime && endTime ? `⏰ ${startTime} → ${endTime}` : undefined}
+                summary={hasTime ? `⏰ ${startTime} → ${endTime}` : undefined}
               >
-                <div className="space-y-2">
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={hasTime}
-                      onChange={(e) => {
-                        setHasTime(e.target.checked);
-                        if (e.target.checked && !startTime) {
-                          setStartTime("09:00");
-                          setEndTime("10:00");
-                        }
-                      }}
-                      className="rounded"
-                    />
-                    <span className="text-body-sm text-on-surface-variant">시간 지정</span>
-                  </label>
-                  {hasTime && startTime && endTime && (
-                    <TimePicker
-                      startTime={startTime}
-                      endTime={endTime}
-                      onChange={(s, e) => { setStartTime(s); setEndTime(e); }}
-                    />
-                  )}
-                </div>
+                <TimePicker
+                  startTime={startTime}
+                  endTime={endTime}
+                  onChange={(s, e) => {
+                    setStartTime(s);
+                    setEndTime(e);
+                    setHasTime(true);
+                  }}
+                />
               </CollapsibleSection>
             </div>
 
