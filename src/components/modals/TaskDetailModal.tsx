@@ -2,10 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Todo, Quadrant } from "@/lib/types";
+import { Todo, Quadrant, RepeatType } from "@/lib/types";
 import { QUADRANTS } from "@/lib/constants";
 import { useTodoContext } from "@/hooks/useTodos";
 import QuadrantSelector from "@/components/ui/QuadrantSelector";
+import CollapsibleSection from "../ui/CollapsibleSection";
+import TimePicker from "../ui/TimePicker";
+import RepeatSelector from "../ui/RepeatSelector";
 
 interface TaskDetailModalProps {
   todoId: string | null;
@@ -23,6 +26,12 @@ export default function TaskDetailModal({
   const [memo, setMemo] = useState("");
   const [quadrant, setQuadrant] = useState<Quadrant>("plan");
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [repeat, setRepeat] = useState<RepeatType>(todo?.repeat ?? "none");
+  const [repeatDays, setRepeatDays] = useState<number[]>(todo?.repeatDays ?? []);
+  const [repeatDate, setRepeatDate] = useState(todo?.repeatDate ?? 1);
+  const [hasTime, setHasTime] = useState(!!todo?.startTime);
+  const [startTime, setStartTime] = useState(todo?.startTime ?? "09:00");
+  const [endTime, setEndTime] = useState(todo?.endTime ?? "10:00");
 
   useEffect(() => {
     if (todo) {
@@ -30,13 +39,28 @@ export default function TaskDetailModal({
       setMemo(todo.memo);
       setQuadrant(todo.quadrant);
       setConfirmDelete(false);
+      setRepeat(todo.repeat);
+      setRepeatDays(todo.repeatDays ?? []);
+      setRepeatDate(todo.repeatDate ?? 1);
+      setHasTime(!!todo.startTime);
+      setStartTime(todo.startTime ?? "09:00");
+      setEndTime(todo.endTime ?? "10:00");
     }
   }, [todo]);
 
   if (!todo) return null;
 
   const handleSave = () => {
-    updateTodo(todo.id, { title: title.trim() || todo.title, memo });
+    updateTodo(todo.id, {
+      title: title.trim() || todo.title,
+      memo,
+      quadrant,
+      repeat,
+      repeatDays: repeat === "weekly" ? repeatDays : undefined,
+      repeatDate: repeat === "monthly" ? repeatDate : undefined,
+      startTime: hasTime ? startTime : undefined,
+      endTime: hasTime ? endTime : undefined,
+    });
     if (quadrant !== todo.quadrant) {
       moveQuadrant(todo.id, quadrant);
     }
@@ -97,6 +121,58 @@ export default function TaskDetailModal({
               />
             </div>
 
+            {/* Time section */}
+            <div className="mt-2 mb-2">
+              <CollapsibleSection
+                icon="⏰"
+                label="시간 설정"
+                summary={hasTime && startTime && endTime ? `⏰ ${startTime} → ${endTime}` : undefined}
+              >
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={hasTime}
+                      onChange={(e) => {
+                        setHasTime(e.target.checked);
+                        if (e.target.checked && !startTime) {
+                          setStartTime("09:00");
+                          setEndTime("10:00");
+                        }
+                      }}
+                      className="rounded"
+                    />
+                    <span className="text-body-sm text-on-surface-variant">시간 지정</span>
+                  </label>
+                  {hasTime && startTime && endTime && (
+                    <TimePicker
+                      startTime={startTime}
+                      endTime={endTime}
+                      onChange={(s, e) => { setStartTime(s); setEndTime(e); }}
+                    />
+                  )}
+                </div>
+              </CollapsibleSection>
+            </div>
+
+            {/* Repeat section */}
+            <div className="mt-2 mb-5">
+              <CollapsibleSection
+                icon="🔁"
+                label="반복"
+                summary={repeat !== "none" ? `🔁 ${repeat === "daily" ? "매일" : repeat === "weekly" ? `매주` : repeat === "monthly" ? `매월 ${repeatDate}일` : "매년"}` : undefined}
+              >
+                <RepeatSelector
+                  value={repeat}
+                  onChange={setRepeat}
+                  repeatDays={repeatDays}
+                  onRepeatDaysChange={setRepeatDays}
+                  repeatDate={repeatDate}
+                  onRepeatDateChange={setRepeatDate}
+                />
+              </CollapsibleSection>
+            </div>
+
             {/* Quadrant change */}
             <div className="mb-5">
               <label className="text-label-lg text-on-surface-variant mb-2 block">
@@ -104,18 +180,6 @@ export default function TaskDetailModal({
               </label>
               <QuadrantSelector selected={quadrant} onChange={setQuadrant} />
             </div>
-
-            {/* Repeat info */}
-            {todo.repeat !== "none" && (
-              <div className="mb-5 px-3 py-2 bg-surface-container-high rounded-sm">
-                <span className="text-body-sm text-on-surface-variant">
-                  반복: {todo.repeat === "daily" && "매일"}
-                  {todo.repeat === "weekly" && "매주"}
-                  {todo.repeat === "monthly" && "매월"}
-                  {todo.repeat === "yearly" && "매년"}
-                </span>
-              </div>
-            )}
 
             {/* Actions */}
             <div className="flex gap-3">
