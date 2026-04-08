@@ -58,34 +58,37 @@ function DraggableBar({
   onTap,
   startHour,
   endHour,
+  timelineRef,
 }: {
   todo: Todo;
   onUpdate: (id: string, start: string, end: string) => void;
   onTap: (id: string) => void;
   startHour: number;
   endHour: number;
+  timelineRef: React.RefObject<HTMLDivElement | null>;
 }) {
   const q = QUADRANTS[todo.quadrant];
-  const left = timeToPercent(todo.startTime!, startHour, endHour);
-  const right = timeToPercent(todo.endTime!, startHour, endHour);
-  const width = Math.max(right - left, 1);
-
-  const containerRef = useRef<HTMLDivElement>(null);
   const dragState = useRef<{
     type: "move" | "resize-left" | "resize-right";
     startX: number;
-    origLeft: number;
-    origWidth: number;
+    origStartMin: number;
+    origEndMin: number;
   } | null>(null);
-  const [dragOffset, setDragOffset] = useState({ left: 0, width: 0 });
+  const [dragDelta, setDragDelta] = useState({ startDelta: 0, endDelta: 0 });
   const moved = useRef(false);
 
-  const getPercent = useCallback((clientX: number) => {
-    const parent = containerRef.current?.parentElement;
-    if (!parent) return 0;
-    const rect = parent.getBoundingClientRect();
-    return ((clientX - rect.left) / rect.width) * 100;
-  }, []);
+  const startMin = timeToMinutes(todo.startTime!);
+  const endMin = timeToMinutes(todo.endTime!);
+  const rangeMin = (endHour - startHour) * 60;
+
+  const pxToMinutes = useCallback(
+    (px: number) => {
+      const el = timelineRef.current;
+      if (!el) return 0;
+      return (px / el.getBoundingClientRect().width) * rangeMin;
+    },
+    [timelineRef, rangeMin]
+  );
 
   const handlePointerDown = useCallback(
     (e: React.PointerEvent, type: "move" | "resize-left" | "resize-right") => {
@@ -93,84 +96,80 @@ function DraggableBar({
       e.stopPropagation();
       (e.target as HTMLElement).setPointerCapture(e.pointerId);
       moved.current = false;
-      dragState.current = {
-        type,
-        startX: e.clientX,
-        origLeft: left,
-        origWidth: width,
-      };
+      dragState.current = { type, startX: e.clientX, origStartMin: startMin, origEndMin: endMin };
     },
-    [left, width]
+    [startMin, endMin]
   );
 
   const handlePointerMove = useCallback(
     (e: React.PointerEvent) => {
       if (!dragState.current) return;
       const ds = dragState.current;
-      const parent = containerRef.current?.parentElement;
-      if (!parent) return;
-      const pxPerPercent = parent.getBoundingClientRect().width / 100;
-      const deltaPct = (e.clientX - ds.startX) / pxPerPercent;
-
+      const deltaMin = pxToMinutes(e.clientX - ds.startX);
       if (Math.abs(e.clientX - ds.startX) > 3) moved.current = true;
 
+      const snap = (m: number) => Math.round(m / 30) * 30;
+      const floorH = startHour * 60;
+      const ceilH = endHour * 60;
+
       if (ds.type === "move") {
-        const newLeft = Math.max(0, Math.min(100 - ds.origWidth, ds.origLeft + deltaPct));
-        setDragOffset({ left: newLeft - left, width: 0 });
+        const dur = ds.origEndMin - ds.origStartMin;
+        let newStart = snap(ds.origStartMin + deltaMin);
+        newStart = Math.max(floorH, Math.min(ceilH - dur, newStart));
+        setDragDelta({ startDelta: newStart - startMin, endDelta: newStart + dur - endMin });
       } else if (ds.type === "resize-left") {
-        const newLeft = Math.max(0, Math.min(ds.origLeft + ds.origWidth - 2, ds.origLeft + deltaPct));
-        const newWidth = ds.origWidth - (newLeft - ds.origLeft);
-        setDragOffset({ left: newLeft - left, width: newWidth - width });
+        let newStart = snap(ds.origStartMin + deltaMin);
+        newStart = Math.max(floorH, Math.min(ds.origEndMin - 30, newStart));
+        setDragDelta({ startDelta: newStart - startMin, endDelta: 0 });
       } else {
-        const newWidth = Math.max(2, Math.min(100 - ds.origLeft, ds.origWidth + deltaPct));
-        setDragOffset({ left: 0, width: newWidth - width });
+        let newEnd = snap(ds.origEndMin + deltaMin);
+        newEnd = Math.max(ds.origStartMin + 30, Math.min(ceilH, newEnd));
+        setDragDelta({ startDelta: 0, endDelta: newEnd - endMin });
       }
     },
-    [left, width]
+    [startMin, endMin, startHour, endHour, pxToMinutes]
   );
 
   const handlePointerUp = useCallback(() => {
     if (!dragState.current) return;
     if (!moved.current) {
       dragState.current = null;
-      setDragOffset({ left: 0, width: 0 });
+      setDragDelta({ startDelta: 0, endDelta: 0 });
       onTap(todo.id);
       return;
     }
-
-    const finalLeft = left + dragOffset.left;
-    const finalWidth = width + dragOffset.width;
-    const newStart = percentToTime(finalLeft, startHour, endHour);
-    const newEnd = percentToTime(finalLeft + finalWidth, startHour, endHour);
-    if (newStart !== newEnd) {
-      onUpdate(todo.id, newStart, newEnd);
-    }
+    const fmtTime = (m: number) => {
+      const h = Math.floor(m / 60) % 24;
+      const min = m % 60;
+      return `${String(h).padStart(2, "0")}:${String(min).padStart(2, "0")}`;
+    };
+    const newStart = fmtTime(startMin + dragDelta.startDelta);
+    const newEnd = fmtTime(endMin + dragDelta.endDelta);
+    if (newStart !== newEnd) onUpdate(todo.id, newStart, newEnd);
     dragState.current = null;
-    setDragOffset({ left: 0, width: 0 });
-  }, [left, width, dragOffset, todo.id, onUpdate, onTap, startHour, endHour]);
+    setDragDelta({ startDelta: 0, endDelta: 0 });
+  }, [startMin, endMin, dragDelta, todo.id, onUpdate, onTap]);
 
-  const currentLeft = left + dragOffset.left;
-  const currentWidth = width + dragOffset.width;
+  const curStart = startMin + dragDelta.startDelta;
+  const curEnd = endMin + dragDelta.endDelta;
+  const leftPct = ((curStart - startHour * 60) / rangeMin) * 100;
+  const widthPct = ((curEnd - curStart) / rangeMin) * 100;
 
   return (
     <div
-      ref={containerRef}
-      className="relative h-9 flex items-center"
+      className="absolute top-0 h-full flex items-center"
+      style={{ left: `${leftPct}%`, width: `${widthPct}%` }}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
     >
       <div
-        className="absolute h-8 rounded-md flex items-center overflow-hidden cursor-grab active:cursor-grabbing shadow-sm"
+        className="w-full h-[32px] rounded-md flex items-center overflow-hidden cursor-grab active:cursor-grabbing shadow-sm relative"
         style={{
-          left: `${currentLeft}%`,
-          width: `${currentWidth}%`,
           backgroundColor: q.container,
-          minWidth: "12px",
           border: `1px solid color-mix(in srgb, ${q.primary} 40%, transparent)`,
         }}
         onPointerDown={(e) => handlePointerDown(e, "move")}
       >
-        {/* Left resize handle */}
         <div
           className="absolute left-0 top-0 bottom-0 w-3 cursor-ew-resize z-10 flex items-center justify-center"
           onPointerDown={(e) => handlePointerDown(e, "resize-left")}
@@ -180,7 +179,6 @@ function DraggableBar({
         <span className="text-[11px] text-white font-semibold truncate px-4 pointer-events-none drop-shadow-sm">
           {todo.title}
         </span>
-        {/* Right resize handle */}
         <div
           className="absolute right-0 top-0 bottom-0 w-3 cursor-ew-resize z-10 flex items-center justify-center"
           onPointerDown={(e) => handlePointerDown(e, "resize-right")}
@@ -206,6 +204,7 @@ function TimelineBar({
 
   const { startHour, endHour } = getTimeRange(todos);
   const totalHours = endHour - startHour;
+  const timelineRef = useRef<HTMLDivElement>(null);
 
   // 1시간 단위 눈금 생성
   const hours: number[] = [];
@@ -253,19 +252,58 @@ function TimelineBar({
           ))}
         </div>
 
-        {/* Task bars — draggable */}
-        <div className="space-y-[2px] relative z-[1]">
-          {scheduled.map((todo) => (
-            <DraggableBar
-              key={todo.id}
-              todo={todo}
-              onUpdate={onUpdate}
-              onTap={onTap}
-              startHour={startHour}
-              endHour={endHour}
-            />
-          ))}
-        </div>
+        {/* Task bars — packed into rows to save space */}
+        {(() => {
+          const rows: Todo[][] = [];
+          const sorted = [...scheduled].sort(
+            (a, b) => timeToMinutes(a.startTime!) - timeToMinutes(b.startTime!)
+          );
+          for (const todo of sorted) {
+            const start = timeToMinutes(todo.startTime!);
+            let placed = false;
+            for (const row of rows) {
+              const lastEnd = timeToMinutes(row[row.length - 1].endTime!);
+              if (start >= lastEnd) {
+                row.push(todo);
+                placed = true;
+                break;
+              }
+            }
+            if (!placed) rows.push([todo]);
+          }
+
+          const ROW_H = 36;
+          const GAP = 2;
+          const totalH = rows.length * ROW_H + Math.max(0, rows.length - 1) * GAP;
+
+          return (
+            <div ref={timelineRef} className="relative z-[1]" style={{ height: `${totalH}px` }}>
+              {rows.map((row, ri) =>
+                row.map((todo) => (
+                  <div
+                    key={todo.id}
+                    className="absolute"
+                    style={{
+                      top: `${ri * (ROW_H + GAP)}px`,
+                      left: 0,
+                      right: 0,
+                      height: `${ROW_H}px`,
+                    }}
+                  >
+                    <DraggableBar
+                      todo={todo}
+                      onUpdate={onUpdate}
+                      onTap={onTap}
+                      startHour={startHour}
+                      endHour={endHour}
+                      timelineRef={timelineRef}
+                    />
+                  </div>
+                ))
+              )}
+            </div>
+          );
+        })()}
       </div>
     </div>
   );
