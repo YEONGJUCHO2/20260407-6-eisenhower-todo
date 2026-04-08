@@ -7,6 +7,8 @@ import { toDateString } from "@/lib/date-utils";
 import { useTodoContext } from "@/hooks/useTodos";
 import QuadrantSelector from "@/components/ui/QuadrantSelector";
 import RepeatSelector from "@/components/ui/RepeatSelector";
+import TimePicker from "../ui/TimePicker";
+import CollapsibleSection from "../ui/CollapsibleSection";
 
 interface AddTodoModalProps {
   isOpen: boolean;
@@ -27,17 +29,32 @@ export default function AddTodoModal({
   const [date, setDate] = useState(toDateString(defaultDate ?? new Date()));
   const [repeat, setRepeat] = useState<RepeatType>("none");
   const [error, setError] = useState(false);
+  const [repeatDays, setRepeatDays] = useState<number[]>([]);
+  const [repeatDate, setRepeatDate] = useState(1);
+  const [startTime, setStartTime] = useState<string | undefined>();
+  const [endTime, setEndTime] = useState<string | undefined>();
+  const [hasTime, setHasTime] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const resetForm = () => {
+    setTitle("");
+    setQuadrant(defaultQuadrant ?? "plan");
+    setDate(toDateString(defaultDate ?? new Date()));
+    setRepeat("none");
+    setError(false);
+    setRepeatDays([]);
+    setRepeatDate(1);
+    setStartTime(undefined);
+    setEndTime(undefined);
+    setHasTime(false);
+  };
 
   useEffect(() => {
     if (isOpen) {
-      setTitle("");
-      setQuadrant(defaultQuadrant ?? "plan");
-      setDate(toDateString(defaultDate ?? new Date()));
-      setRepeat("none");
-      setError(false);
+      resetForm();
       setTimeout(() => inputRef.current?.focus(), 300);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, defaultDate, defaultQuadrant]);
 
   const handleSubmit = () => {
@@ -51,6 +68,10 @@ export default function AddTodoModal({
       quadrant,
       date,
       repeat,
+      repeatDays: repeat === "weekly" ? repeatDays : undefined,
+      repeatDate: repeat === "monthly" ? repeatDate : undefined,
+      startTime: hasTime ? startTime : undefined,
+      endTime: hasTime ? endTime : undefined,
     });
     onClose();
   };
@@ -125,18 +146,62 @@ export default function AddTodoModal({
               />
             </div>
 
-            {/* Repeat */}
-            <div className="mb-6">
-              <label className="text-label-lg text-on-surface-variant mb-2 block">
-                반복 설정
-              </label>
-              <RepeatSelector selected={repeat} onChange={setRepeat} />
+            {/* Time section */}
+            <div className="mt-2">
+              <CollapsibleSection
+                icon="⏰"
+                label="시간 설정"
+                summary={hasTime && startTime && endTime ? `⏰ ${startTime} → ${endTime}` : undefined}
+              >
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={hasTime}
+                      onChange={(e) => {
+                        setHasTime(e.target.checked);
+                        if (e.target.checked && !startTime) {
+                          setStartTime("09:00");
+                          setEndTime("10:00");
+                        }
+                      }}
+                      className="rounded"
+                    />
+                    <span className="text-body-sm text-on-surface-variant">시간 지정</span>
+                  </label>
+                  {hasTime && startTime && endTime && (
+                    <TimePicker
+                      startTime={startTime}
+                      endTime={endTime}
+                      onChange={(s, e) => { setStartTime(s); setEndTime(e); }}
+                    />
+                  )}
+                </div>
+              </CollapsibleSection>
+            </div>
+
+            {/* Repeat section */}
+            <div className="mt-2">
+              <CollapsibleSection
+                icon="🔁"
+                label="반복"
+                summary={repeat !== "none" ? `🔁 ${repeat === "daily" ? "매일" : repeat === "weekly" ? `매주` : repeat === "monthly" ? `매월 ${repeatDate}일` : "매년"}` : undefined}
+              >
+                <RepeatSelector
+                  value={repeat}
+                  onChange={setRepeat}
+                  repeatDays={repeatDays}
+                  onRepeatDaysChange={setRepeatDays}
+                  repeatDate={repeatDate}
+                  onRepeatDateChange={setRepeatDate}
+                />
+              </CollapsibleSection>
             </div>
 
             {/* Submit */}
             <button
               onClick={handleSubmit}
-              className="w-full py-3.5 rounded-full bg-gradient-to-r from-quadrant-plan-container to-[#0450b0] text-white text-body-lg font-semibold transition-all active:scale-[0.98]"
+              className="w-full mt-6 py-3.5 rounded-full bg-gradient-to-r from-quadrant-plan-container to-[#0450b0] text-white text-body-lg font-semibold transition-all active:scale-[0.98]"
             >
               추가하기
             </button>
