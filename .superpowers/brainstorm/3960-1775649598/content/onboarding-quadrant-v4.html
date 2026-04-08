@@ -1,0 +1,89 @@
+<h2>온보딩 — 매트릭스만 깔끔하게</h2>
+<p class="subtitle">카드 리스트 제거, 라벨 위치 조정</p>
+
+<div class="cards">
+  <div class="card" data-choice="clean" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 0; background: #131317;">
+      <div style="max-width: 320px; margin: 0 auto; padding: 24px 20px;">
+        <!-- Title -->
+        <div style="text-align: center; margin-bottom: 24px;">
+          <span style="font-size: 36px; display: block; margin-bottom: 8px;">📊</span>
+          <div style="font-size: 20px; font-weight: 700; color: #e4e1e7; font-family: sans-serif;">아이젠하워 매트릭스</div>
+          <div style="font-size: 13px; color: #8c909f; margin-top: 6px;">할 일을 긴급/중요로 나눠 4가지로 분류하세요</div>
+        </div>
+
+        <div style="display: flex;">
+          <!-- Vertical arrow + "중요" label sideways centered -->
+          <div style="position: relative; width: 22px; margin-right: 4px; display: flex; flex-direction: column; align-items: center;">
+            <!-- "중요" rotated, centered vertically beside arrow -->
+            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-90deg); white-space: nowrap; z-index: 1;">
+              <span style="font-size: 9px; font-weight: 600; color: #adc6ff; letter-spacing: 1.5px;">중요</span>
+            </div>
+            <!-- Arrow SVG: bottom(transparent/thin) → top(thick/opaque) -->
+            <svg style="width: 12px; height: 100%; min-height: 200px; position: absolute; left: 50%; transform: translateX(-50%);" viewBox="0 0 12 200" preserveAspectRatio="none">
+              <defs><linearGradient id="vU" x1="0%" y1="100%" x2="0%" y2="0%"><stop offset="0%" stop-color="#adc6ff" stop-opacity="0"/><stop offset="40%" stop-color="#adc6ff" stop-opacity="0.12"/><stop offset="70%" stop-color="#adc6ff" stop-opacity="0.3"/><stop offset="100%" stop-color="#adc6ff" stop-opacity="0.55"/></linearGradient></defs>
+              <polygon points="5.5,200 3,30 9,30 6.5,200" fill="url(#vU)"/>
+              <polygon points="1,32 6,16 11,32" fill="rgba(173,198,255,0.55)"/>
+            </svg>
+          </div>
+
+          <div style="flex: 1;">
+            <!-- Horizontal arrow + "긴급" label above, centered -->
+            <div style="position: relative; height: 22px; margin-bottom: 4px;">
+              <!-- "긴급" centered above the arrow line -->
+              <div style="position: absolute; top: 0; left: 50%; transform: translateX(-50%); z-index: 1;">
+                <span style="font-size: 9px; font-weight: 600; color: #ffb3ad; letter-spacing: 1.5px;">긴급</span>
+              </div>
+              <!-- Arrow SVG: right(transparent/thin) → left(thick/opaque) -->
+              <svg style="position: absolute; bottom: 0; left: 0; width: 100%; height: 12px;" viewBox="0 0 270 12" preserveAspectRatio="none">
+                <defs><linearGradient id="hL" x1="100%" y1="0%" x2="0%" y2="0%"><stop offset="0%" stop-color="#ffb3ad" stop-opacity="0"/><stop offset="40%" stop-color="#ffb3ad" stop-opacity="0.12"/><stop offset="70%" stop-color="#ffb3ad" stop-opacity="0.3"/><stop offset="100%" stop-color="#ffb3ad" stop-opacity="0.55"/></linearGradient></defs>
+                <polygon points="270,5.5 40,3 40,9 270,6.5" fill="url(#hL)"/>
+                <polygon points="42,1 26,6 42,11" fill="rgba(255,179,173,0.55)"/>
+              </svg>
+            </div>
+
+            <!-- 2x2 Grid -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
+              <div style="background: rgba(255,84,81,0.1); border-radius: 8px; padding: 10px; border-left: 2px solid #ff5451; min-height: 76px;">
+                <div style="font-size: 10px; font-weight: 700; color: #ffb3ad; text-transform: uppercase; letter-spacing: 1px;">DO</div>
+                <div style="font-size: 10px; color: #c2c6d6; margin-top: 4px; line-height: 1.3;">지금 바로<br/>실행하세요</div>
+              </div>
+              <div style="background: rgba(5,102,217,0.1); border-radius: 8px; padding: 10px; border-left: 2px solid #0566d9; min-height: 76px;">
+                <div style="font-size: 10px; font-weight: 700; color: #adc6ff; text-transform: uppercase; letter-spacing: 1px;">PLAN</div>
+                <div style="font-size: 10px; color: #c2c6d6; margin-top: 4px; line-height: 1.3;">일정을 잡아<br/>계획하세요</div>
+              </div>
+              <div style="background: rgba(202,129,0,0.1); border-radius: 8px; padding: 10px; border-left: 2px solid #ca8100; min-height: 76px;">
+                <div style="font-size: 10px; font-weight: 700; color: #ffb95f; text-transform: uppercase; letter-spacing: 1px;">DELEGATE</div>
+                <div style="font-size: 10px; color: #c2c6d6; margin-top: 4px; line-height: 1.3;">다른 사람에게<br/>맡기세요</div>
+              </div>
+              <div style="background: rgba(66,71,84,0.1); border-radius: 8px; padding: 10px; border-left: 2px solid #424754; min-height: 76px;">
+                <div style="font-size: 10px; font-weight: 700; color: #8c909f; text-transform: uppercase; letter-spacing: 1px;">DELETE</div>
+                <div style="font-size: 10px; color: #c2c6d6; margin-top: 4px; line-height: 1.3;">과감하게<br/>버리세요</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Highlight -->
+        <div style="text-align: center; padding: 10px; background: rgba(5,102,217,0.08); border-radius: 8px; margin-top: 20px;">
+          <span style="font-size: 11px; color: #adc6ff;">💡 가장 중요한 건 <strong>PLAN</strong> — 여기가 인생을 바꾸는 곳입니다</span>
+        </div>
+
+        <!-- Dots + button -->
+        <div style="display: flex; gap: 6px; justify-content: center; margin-top: 24px;">
+          <div style="width: 20px; height: 6px; border-radius: 3px; background: #0566d9;"></div>
+          <div style="width: 6px; height: 6px; border-radius: 3px; background: rgba(140,144,159,0.3);"></div>
+          <div style="width: 6px; height: 6px; border-radius: 3px; background: rgba(140,144,159,0.3);"></div>
+        </div>
+        <div style="margin-top: 12px; display: flex; gap: 12px;">
+          <span style="font-size: 13px; color: #8c909f; padding: 10px;">건너뛰기</span>
+          <div style="flex: 1; background: linear-gradient(to right, #0566d9, #0450b0); border-radius: 999px; padding: 12px; text-align: center; font-size: 14px; font-weight: 600; color: #fff;">다음</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>깔끔 버전</h3>
+      <p>카드 리스트 제거. "긴급" = 가로 화살표 위 중앙. "중요" = 세로 화살표 옆 눕혀서 중앙.</p>
+    </div>
+  </div>
+</div>

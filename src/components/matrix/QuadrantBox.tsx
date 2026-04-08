@@ -96,7 +96,7 @@ export default function QuadrantBox({
       {/* Scroll fade */}
       <div
         className="absolute bottom-0 left-0 right-0 h-4 pointer-events-none"
-        style={{ background: `linear-gradient(transparent, #1b1b1f)` }}
+        style={{ background: `linear-gradient(transparent, var(--color-surface-container-low))` }}
       />
     </div>
   );

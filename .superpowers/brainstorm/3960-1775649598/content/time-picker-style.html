@@ -1,0 +1,106 @@
+<h2>시간 피커 스타일</h2>
+<p class="subtitle">시작~종료 시간을 입력하는 UI를 어떤 방식으로 만들까요?</p>
+
+<div class="cards">
+  <!-- Option A: Scroll Wheel -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 24px; background: #131317;">
+      <div style="display: flex; gap: 16px; align-items: center; justify-content: center;">
+        <!-- Start time -->
+        <div style="text-align: center;">
+          <div style="font-size: 10px; color: #8c909f; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">시작</div>
+          <div style="background: #1f1f23; border-radius: 12px; padding: 8px 12px; width: 100px;">
+            <div style="color: #555; font-size: 13px;">08:00</div>
+            <div style="border-top: 1px solid #353439; border-bottom: 1px solid #353439; padding: 8px 0; margin: 4px 0;">
+              <span style="font-size: 22px; font-weight: 700; color: #e4e1e7;">09:00</span>
+            </div>
+            <div style="color: #555; font-size: 13px;">10:00</div>
+          </div>
+        </div>
+        <div style="color: #8c909f; font-size: 20px; margin-top: 18px;">~</div>
+        <!-- End time -->
+        <div style="text-align: center;">
+          <div style="font-size: 10px; color: #8c909f; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">종료</div>
+          <div style="background: #1f1f23; border-radius: 12px; padding: 8px 12px; width: 100px;">
+            <div style="color: #555; font-size: 13px;">10:00</div>
+            <div style="border-top: 1px solid #353439; border-bottom: 1px solid #353439; padding: 8px 0; margin: 4px 0;">
+              <span style="font-size: 22px; font-weight: 700; color: #e4e1e7;">11:00</span>
+            </div>
+            <div style="color: #555; font-size: 13px;">12:00</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A. 스크롤 휠</h3>
+      <p>iOS 스타일 드럼 롤러. 위아래로 스크롤해서 시간 선택. 직관적이고 터치 친화적.</p>
+      <p style="color: #8c909f; font-size: 12px;">30분 단위 (09:00, 09:30, 10:00...)</p>
+    </div>
+  </div>
+
+  <!-- Option B: Grid Tap -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 24px; background: #131317;">
+      <div style="text-align: center;">
+        <div style="font-size: 10px; color: #8c909f; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;">시작 시간</div>
+        <div style="display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; max-width: 260px; margin: 0 auto;">
+          <div style="background: #1f1f23; border-radius: 8px; padding: 8px 10px; font-size: 13px; color: #8c909f; min-width: 52px;">6:00</div>
+          <div style="background: #1f1f23; border-radius: 8px; padding: 8px 10px; font-size: 13px; color: #8c909f; min-width: 52px;">7:00</div>
+          <div style="background: #1f1f23; border-radius: 8px; padding: 8px 10px; font-size: 13px; color: #8c909f; min-width: 52px;">8:00</div>
+          <div style="background: #0566d9; border-radius: 8px; padding: 8px 10px; font-size: 13px; color: #fff; min-width: 52px; font-weight: 600;">9:00</div>
+          <div style="background: #1f1f23; border-radius: 8px; padding: 8px 10px; font-size: 13px; color: #8c909f; min-width: 52px;">10:00</div>
+          <div style="background: #1f1f23; border-radius: 8px; padding: 8px 10px; font-size: 13px; color: #8c909f; min-width: 52px;">11:00</div>
+          <div style="background: #1f1f23; border-radius: 8px; padding: 8px 10px; font-size: 13px; color: #8c909f; min-width: 52px;">12:00</div>
+          <div style="background: #1f1f23; border-radius: 8px; padding: 8px 10px; font-size: 13px; color: #8c909f; min-width: 52px;">1:00</div>
+          <div style="background: #1f1f23; border-radius: 8px; padding: 8px 10px; font-size: 13px; color: #8c909f; min-width: 52px;">2:00</div>
+        </div>
+        <div style="margin-top: 8px; display: flex; gap: 6px; justify-content: center;">
+          <div style="background: #353439; border-radius: 16px; padding: 4px 12px; font-size: 11px; color: #e4e1e7; font-weight: 600;">오전</div>
+          <div style="background: #1f1f23; border-radius: 16px; padding: 4px 12px; font-size: 11px; color: #8c909f;">오후</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B. 그리드 탭</h3>
+      <p>시간을 그리드로 펼쳐놓고 탭해서 선택. 한눈에 보이고 빠른 선택 가능.</p>
+      <p style="color: #8c909f; font-size: 12px;">1시간 단위 + 오전/오후 토글 (탭하면 30분 세분화)</p>
+    </div>
+  </div>
+
+  <!-- Option C: Inline Compact -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 24px; background: #131317;">
+      <div style="display: flex; gap: 12px; align-items: center; justify-content: center;">
+        <!-- Start -->
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <div style="background: #1f1f23; border-radius: 10px; padding: 10px 14px; text-align: center;">
+            <span style="font-size: 24px; font-weight: 700; color: #adc6ff;">09</span>
+          </div>
+          <span style="color: #8c909f; font-size: 20px;">:</span>
+          <div style="background: #1f1f23; border-radius: 10px; padding: 10px 14px; text-align: center;">
+            <span style="font-size: 24px; font-weight: 700; color: #adc6ff;">00</span>
+          </div>
+        </div>
+        <span style="color: #8c909f; font-size: 16px;">→</span>
+        <!-- End -->
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <div style="background: #1f1f23; border-radius: 10px; padding: 10px 14px; text-align: center;">
+            <span style="font-size: 24px; font-weight: 700; color: #ffb3ad;">11</span>
+          </div>
+          <span style="color: #8c909f; font-size: 20px;">:</span>
+          <div style="background: #1f1f23; border-radius: 10px; padding: 10px 14px; text-align: center;">
+            <span style="font-size: 24px; font-weight: 700; color: #ffb3ad;">00</span>
+          </div>
+        </div>
+      </div>
+      <div style="text-align: center; margin-top: 10px;">
+        <span style="font-size: 11px; color: #8c909f;">↑↓ 탭해서 숫자 조절</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C. 인라인 숫자 입력</h3>
+      <p>시/분 박스를 탭하면 숫자가 올라가고, 컴팩트하게 한 줄에 표시. 모달 공간 절약.</p>
+      <p style="color: #8c909f; font-size: 12px;">시작 = PLAN 블루, 종료 = DO 레드로 구분</p>
+    </div>
+  </div>
+</div>

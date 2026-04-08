@@ -1,0 +1,85 @@
+<h2>온보딩 아이콘 대안</h2>
+<p class="subtitle">📊 이모지 대신 쓸 아이콘</p>
+
+<div class="cards">
+  <!-- A: Custom SVG mini matrix -->
+  <div class="card" data-choice="icon-a" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 32px; background: #131317; text-align: center;">
+      <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+        <rect x="2" y="2" width="28" height="28" rx="6" fill="rgba(255,84,81,0.2)" stroke="#ff5451" stroke-width="1.5"/>
+        <rect x="34" y="2" width="28" height="28" rx="6" fill="rgba(5,102,217,0.2)" stroke="#0566d9" stroke-width="1.5"/>
+        <rect x="2" y="34" width="28" height="28" rx="6" fill="rgba(202,129,0,0.2)" stroke="#ca8100" stroke-width="1.5"/>
+        <rect x="34" y="34" width="28" height="28" rx="6" fill="rgba(66,71,84,0.2)" stroke="#424754" stroke-width="1.5"/>
+        <!-- Check in DO quadrant -->
+        <path d="M11 16 L15 20 L23 12" stroke="#ffb3ad" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <!-- Clock in PLAN quadrant -->
+        <circle cx="48" cy="16" r="6" stroke="#adc6ff" stroke-width="1.5" fill="none"/>
+        <path d="M48 12 V16 L51 18" stroke="#adc6ff" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+        <!-- Arrow in DELEGATE -->
+        <path d="M11 48 L21 48 M18 44 L22 48 L18 52" stroke="#ffb95f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <!-- X in DELETE -->
+        <path d="M44 44 L52 52 M52 44 L44 52" stroke="#8c909f" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+      </svg>
+      <div style="font-size: 11px; color: #8c909f; margin-top: 12px;">아이젠하워 매트릭스</div>
+    </div>
+    <div class="card-body">
+      <h3>A. 커스텀 2x2 매트릭스 아이콘</h3>
+      <p>4사분면 색상 + 각 칸에 의미 아이콘 (체크, 시계, 화살표, X). 앱 정체성을 바로 전달.</p>
+    </div>
+  </div>
+
+  <!-- B: Eisenhower silhouette -->
+  <div class="card" data-choice="icon-b" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 32px; background: #131317; text-align: center;">
+      <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+        <!-- Simple star/compass shape representing decision-making -->
+        <circle cx="32" cy="32" r="28" stroke="rgba(173,198,255,0.2)" stroke-width="1"/>
+        <circle cx="32" cy="32" r="18" stroke="rgba(173,198,255,0.1)" stroke-width="1"/>
+        <!-- Crosshair / axis lines -->
+        <line x1="32" y1="6" x2="32" y2="58" stroke="rgba(173,198,255,0.15)" stroke-width="1"/>
+        <line x1="6" y1="32" x2="58" y2="32" stroke="rgba(255,179,173,0.15)" stroke-width="1"/>
+        <!-- 4 dots in each quadrant -->
+        <circle cx="22" cy="22" r="4" fill="rgba(255,84,81,0.6)"/>
+        <circle cx="42" cy="22" r="4" fill="rgba(5,102,217,0.6)"/>
+        <circle cx="22" cy="42" r="4" fill="rgba(202,129,0,0.6)"/>
+        <circle cx="42" cy="42" r="4" fill="rgba(66,71,84,0.6)"/>
+        <!-- Center dot -->
+        <circle cx="32" cy="32" r="2.5" fill="#e4e1e7"/>
+      </svg>
+      <div style="font-size: 11px; color: #8c909f; margin-top: 12px;">아이젠하워 매트릭스</div>
+    </div>
+    <div class="card-body">
+      <h3>B. 나침반/좌표 스타일</h3>
+      <p>원형 좌표에 4사분면 도트. 의사결정 나침반 느낌. 추상적이고 세련됨.</p>
+    </div>
+  </div>
+
+  <!-- C: Material icon grid_view -->
+  <div class="card" data-choice="icon-c" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 32px; background: #131317; text-align: center;">
+      <span class="material-symbols-outlined" style="font-size: 56px; color: #adc6ff; font-variation-settings: 'FILL' 0, 'wght' 200;">grid_view</span>
+      <div style="font-size: 11px; color: #8c909f; margin-top: 12px;">아이젠하워 매트릭스</div>
+    </div>
+    <div class="card-body">
+      <h3>C. Material 아이콘 (가벼운 선)</h3>
+      <p>기존 grid_view 아이콘인데 weight 200으로 가늘게. PLAN 블루 컬러. 이모지보다 세련됨.</p>
+    </div>
+  </div>
+
+  <!-- D: No icon, typography only -->
+  <div class="card" data-choice="icon-d" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 32px; background: #131317; text-align: center;">
+      <div style="display: inline-grid; grid-template-columns: 1fr 1fr; gap: 3px;">
+        <div style="width: 24px; height: 24px; border-radius: 5px; background: rgba(255,84,81,0.25);"></div>
+        <div style="width: 24px; height: 24px; border-radius: 5px; background: rgba(5,102,217,0.25);"></div>
+        <div style="width: 24px; height: 24px; border-radius: 5px; background: rgba(202,129,0,0.25);"></div>
+        <div style="width: 24px; height: 24px; border-radius: 5px; background: rgba(66,71,84,0.25);"></div>
+      </div>
+      <div style="font-size: 20px; font-weight: 700; color: #e4e1e7; margin-top: 12px;">아이젠하워 매트릭스</div>
+    </div>
+    <div class="card-body">
+      <h3>D. 미니 컬러 그리드 + 타이포</h3>
+      <p>작은 4색 사각형만. 아이콘 없이 색상만으로 매트릭스 암시. 타이틀이 주인공.</p>
+    </div>
+  </div>
+</div>

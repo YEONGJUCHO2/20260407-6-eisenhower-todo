@@ -9,7 +9,7 @@ interface HeaderProps {
 
 export default function Header({ selectedDate }: HeaderProps) {
   return (
-    <header className="sticky top-0 z-40 bg-[#0e0e12]/80 backdrop-blur-[48px]">
+    <header className="sticky top-0 z-40 bg-surface-container-lowest/80 backdrop-blur-[48px]">
       <div className="flex items-center justify-between px-lg py-3">
         <div className="flex items-center gap-2">
           <AppLogo size="sm" />

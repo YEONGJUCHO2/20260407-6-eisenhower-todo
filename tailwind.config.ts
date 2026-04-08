@@ -10,23 +10,35 @@ const config: Config = {
     extend: {
       colors: {
         surface: {
-          DEFAULT: "#131317",
-          "container-lowest": "#0e0e12",
-          "container-low": "#1b1b1f",
-          container: "#1f1f23",
-          "container-high": "#2a292e",
-          "container-highest": "#353439",
+          DEFAULT: "var(--color-surface)",
+          "container-lowest": "var(--color-surface-container-lowest)",
+          "container-low": "var(--color-surface-container-low)",
+          "container": "var(--color-surface-container)",
+          "container-high": "var(--color-surface-container-high)",
+          "container-highest": "var(--color-surface-container-highest)",
         },
         "on-surface": {
-          DEFAULT: "#e4e1e7",
-          variant: "#c2c6d6",
+          DEFAULT: "var(--color-on-surface)",
+          variant: "var(--color-on-surface-variant)",
         },
-        outline: "#8c909f",
+        outline: "var(--color-outline)",
         quadrant: {
-          do: { primary: "#ffb3ad", container: "#ff5451" },
-          plan: { primary: "#adc6ff", container: "#0566d9" },
-          delegate: { primary: "#ffb95f", container: "#ca8100" },
-          delete: { primary: "#8c909f", container: "#424754" },
+          do: {
+            primary: "var(--color-q-do-primary)",
+            container: "var(--color-q-do-container)",
+          },
+          plan: {
+            primary: "var(--color-q-plan-primary)",
+            container: "var(--color-q-plan-container)",
+          },
+          delegate: {
+            primary: "var(--color-q-delegate-primary)",
+            container: "var(--color-q-delegate-container)",
+          },
+          delete: {
+            primary: "var(--color-q-delete-primary)",
+            container: "var(--color-q-delete-container)",
+          },
         },
         error: { DEFAULT: "#ffb4ab", container: "#93000a" },
       },

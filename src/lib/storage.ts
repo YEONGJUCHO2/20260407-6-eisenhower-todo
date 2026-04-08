@@ -31,3 +31,17 @@ export function markOnboardingDone(): void {
   if (typeof window === "undefined") return;
   localStorage.setItem(ONBOARDING_KEY, "true");
 }
+
+export type ThemeMode = "system" | "light" | "dark";
+
+const THEME_KEY = "eisenhower-theme";
+
+export function loadTheme(): ThemeMode {
+  if (typeof window === "undefined") return "system";
+  return (localStorage.getItem(THEME_KEY) as ThemeMode) ?? "system";
+}
+
+export function saveTheme(theme: ThemeMode): void {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(THEME_KEY, theme);
+}

@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { TodoProvider } from "@/providers/TodoProvider";
+import ThemeProvider from "@/providers/ThemeProvider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -35,7 +36,9 @@ export default function RootLayout({
         />
       </head>
       <body className="font-body">
-        <TodoProvider>{children}</TodoProvider>
+        <ThemeProvider>
+          <TodoProvider>{children}</TodoProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
