@@ -63,21 +63,17 @@ export default function TaskCard({ todo, onTap }: TaskCardProps) {
           )}
         </button>
 
-        {/* Title */}
-        <span
-          className={`text-body-sm text-on-surface flex-1 truncate ${
-            todo.completed ? "line-through opacity-60" : ""
-          }`}
-        >
-          {todo.title}
-        </span>
-
-        {/* Time badge */}
-        {todo.startTime && todo.endTime && (
-          <span className="text-[10px] text-outline">
-            {todo.startTime}-{todo.endTime}
+        {/* Title + Time */}
+        <div className={`flex-1 min-w-0 ${todo.completed ? "line-through opacity-60" : ""}`}>
+          <span className="text-body-sm text-on-surface truncate block">
+            {todo.title}
           </span>
-        )}
+          {todo.startTime && todo.endTime && (
+            <span className="text-[11px] text-on-surface-variant">
+              {todo.startTime} - {todo.endTime}
+            </span>
+          )}
+        </div>
 
         {/* Repeat badge */}
         {todo.repeat !== "none" && (
