@@ -14,11 +14,11 @@ interface HeaderProps {
   onShowOnboarding?: () => void;
 }
 
-const THEME_CYCLE = { dark: "light", light: "system", system: "dark" } as const;
+const THEME_CYCLE = { dark: "light", light: "dark", system: "light" } as const;
 const THEME_ICON = {
   dark: "dark_mode",
   light: "light_mode",
-  system: "brightness_auto",
+  system: "light_mode",
 };
 
 export default function Header({
