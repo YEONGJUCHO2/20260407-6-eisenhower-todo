@@ -110,8 +110,9 @@ function DraggableBar({
       if (Math.abs(e.clientX - ds.startX) > 3) moved.current = true;
 
       const snap = (m: number) => Math.round(m / 30) * 30;
-      const floorH = startHour * 60;
-      const ceilH = endHour * 60;
+      // Allow dragging across full 24h range — timeline will re-fit on drop
+      const floorH = 0;
+      const ceilH = 24 * 60;
 
       if (ds.type === "move") {
         const dur = ds.origEndMin - ds.origStartMin;
