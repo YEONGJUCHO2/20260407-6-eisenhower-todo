@@ -7,7 +7,13 @@ export function loadTodos(): Todo[] {
   if (typeof window === "undefined") return [];
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
+    const todos = raw ? JSON.parse(raw) : [];
+    // Migrate old todos without subtasks/tags
+    return todos.map((t: Todo) => ({
+      ...t,
+      subtasks: t.subtasks ?? [],
+      tags: t.tags ?? [],
+    }));
   } catch {
     return [];
   }
@@ -44,4 +50,24 @@ export function loadTheme(): ThemeMode {
 export function saveTheme(theme: ThemeMode): void {
   if (typeof window === "undefined") return;
   localStorage.setItem(THEME_KEY, theme);
+}
+
+// Generic JSON helpers for new data types
+export function loadJSON<T>(key: string): T | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+export function saveJSON<T>(key: string, data: T): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(key, JSON.stringify(data));
+  } catch {
+    // silent fail
+  }
 }

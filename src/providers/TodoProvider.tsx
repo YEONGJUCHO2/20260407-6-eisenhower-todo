@@ -8,14 +8,43 @@ import {
   ReactNode,
   useCallback,
 } from "react";
-import { Todo, Quadrant, RepeatType } from "@/lib/types";
-import { loadTodos, saveTodos } from "@/lib/storage";
+import {
+  Todo,
+  Quadrant,
+  RepeatType,
+  Tag,
+  Template,
+  StreakData,
+  Achievement,
+  UndoAction,
+  Subtask,
+} from "@/lib/types";
+import { loadTodos, saveTodos, loadJSON, saveJSON } from "@/lib/storage";
 import { generateRecurringForDate, parseISO } from "@/lib/date-utils";
+
+// ─── State ───
 
 interface TodoState {
   todos: Todo[];
   loaded: boolean;
+  tags: Tag[];
+  templates: Template[];
+  streak: StreakData;
+  achievements: Achievement[];
+  lastAction: UndoAction | null;
 }
+
+const initialState: TodoState = {
+  todos: [],
+  loaded: false,
+  tags: [],
+  templates: [],
+  streak: { currentStreak: 0, longestStreak: 0, lastActiveDate: null },
+  achievements: [],
+  lastAction: null,
+};
+
+// ─── Actions ───
 
 type TodoAction =
   | { type: "LOAD"; todos: Todo[] }
@@ -24,12 +53,25 @@ type TodoAction =
   | { type: "DELETE"; id: string }
   | { type: "TOGGLE_COMPLETE"; id: string }
   | { type: "MOVE_QUADRANT"; id: string; quadrant: Quadrant }
-  | { type: "REORDER"; quadrant: Quadrant; date: string; orderedIds: string[] };
+  | { type: "REORDER"; quadrant: Quadrant; date: string; orderedIds: string[] }
+  | { type: "SET_TAGS"; tags: Tag[] }
+  | { type: "ADD_TAG"; tag: Tag }
+  | { type: "DELETE_TAG"; id: string }
+  | { type: "SET_TEMPLATES"; templates: Template[] }
+  | { type: "ADD_TEMPLATE"; template: Template }
+  | { type: "DELETE_TEMPLATE"; id: string }
+  | { type: "SET_STREAK"; streak: StreakData }
+  | { type: "ADD_ACHIEVEMENT"; achievement: Achievement }
+  | { type: "SET_ACHIEVEMENTS"; achievements: Achievement[] }
+  | { type: "SET_UNDO"; action: UndoAction | null }
+  | { type: "UNDO" };
+
+// ─── Reducer ───
 
 function todoReducer(state: TodoState, action: TodoAction): TodoState {
   switch (action.type) {
     case "LOAD":
-      return { todos: action.todos, loaded: true };
+      return { ...state, todos: action.todos, loaded: true };
 
     case "ADD":
       return { ...state, todos: [...state.todos, action.todo] };
@@ -48,7 +90,7 @@ function todoReducer(state: TodoState, action: TodoAction): TodoState {
         todos: state.todos.filter((t) => t.id !== action.id),
       };
 
-    case "TOGGLE_COMPLETE": {
+    case "TOGGLE_COMPLETE":
       return {
         ...state,
         todos: state.todos.map((t) =>
@@ -56,14 +98,11 @@ function todoReducer(state: TodoState, action: TodoAction): TodoState {
             ? {
                 ...t,
                 completed: !t.completed,
-                completedAt: !t.completed
-                  ? new Date().toISOString()
-                  : null,
+                completedAt: !t.completed ? new Date().toISOString() : null,
               }
             : t
         ),
       };
-    }
 
     case "MOVE_QUADRANT":
       return {
@@ -84,14 +123,76 @@ function todoReducer(state: TodoState, action: TodoAction): TodoState {
       return { ...state, todos };
     }
 
+    // Tags
+    case "SET_TAGS":
+      return { ...state, tags: action.tags };
+    case "ADD_TAG":
+      return { ...state, tags: [...state.tags, action.tag] };
+    case "DELETE_TAG":
+      return { ...state, tags: state.tags.filter((t) => t.id !== action.id) };
+
+    // Templates
+    case "SET_TEMPLATES":
+      return { ...state, templates: action.templates };
+    case "ADD_TEMPLATE":
+      return { ...state, templates: [...state.templates, action.template] };
+    case "DELETE_TEMPLATE":
+      return {
+        ...state,
+        templates: state.templates.filter((t) => t.id !== action.id),
+      };
+
+    // Streak
+    case "SET_STREAK":
+      return { ...state, streak: action.streak };
+
+    // Achievements
+    case "SET_ACHIEVEMENTS":
+      return { ...state, achievements: action.achievements };
+    case "ADD_ACHIEVEMENT":
+      return {
+        ...state,
+        achievements: [...state.achievements, action.achievement],
+      };
+
+    // Undo
+    case "SET_UNDO":
+      return { ...state, lastAction: action.action };
+    case "UNDO": {
+      if (!state.lastAction) return state;
+      const la = state.lastAction;
+      let todos = state.todos;
+      if (la.type === "delete") {
+        todos = [...todos, la.todo];
+      } else if (la.type === "toggle") {
+        todos = todos.map((t) =>
+          t.id === la.id
+            ? { ...t, completed: la.wasCompleted, completedAt: la.wasCompleted ? t.completedAt : null }
+            : t
+        );
+      } else if (la.type === "move") {
+        todos = todos.map((t) =>
+          t.id === la.id ? { ...t, quadrant: la.fromQuadrant } : t
+        );
+      }
+      return { ...state, todos, lastAction: null };
+    }
+
     default:
       return state;
   }
 }
 
+// ─── Context ───
+
 interface TodoContextValue {
   todos: Todo[];
   loaded: boolean;
+  tags: Tag[];
+  templates: Template[];
+  streak: StreakData;
+  achievements: Achievement[];
+  lastAction: UndoAction | null;
   addTodo: (params: {
     title: string;
     quadrant: Quadrant;
@@ -103,6 +204,8 @@ interface TodoContextValue {
     startTime?: string;
     endTime?: string;
     memo?: string;
+    subtasks?: Subtask[];
+    tags?: string[];
   }) => void;
   updateTodo: (id: string, updates: Partial<Todo>) => void;
   deleteTodo: (id: string) => void;
@@ -111,25 +214,54 @@ interface TodoContextValue {
   reorder: (quadrant: Quadrant, date: string, orderedIds: string[]) => void;
   getTodosForDate: (date: string) => Todo[];
   getTodosForQuadrant: (quadrant: Quadrant, date: string) => Todo[];
+  addTag: (tag: Tag) => void;
+  deleteTag: (id: string) => void;
+  addTemplate: (template: Template) => void;
+  deleteTemplate: (id: string) => void;
+  setLastAction: (action: UndoAction | null) => void;
+  undo: () => void;
+  setStreak: (streak: StreakData) => void;
+  addAchievement: (achievement: Achievement) => void;
 }
 
 const TodoContext = createContext<TodoContextValue | null>(null);
 
-export function TodoProvider({ children }: { children: ReactNode }) {
-  const [state, dispatch] = useReducer(todoReducer, {
-    todos: [],
-    loaded: false,
-  });
+// ─── Provider ───
 
+export function TodoProvider({ children }: { children: ReactNode }) {
+  const [state, dispatch] = useReducer(todoReducer, initialState);
+
+  // Load all data from localStorage
   useEffect(() => {
     dispatch({ type: "LOAD", todos: loadTodos() });
+    dispatch({ type: "SET_TAGS", tags: loadJSON<Tag[]>("eisenhower-tags") ?? [] });
+    dispatch({ type: "SET_TEMPLATES", templates: loadJSON<Template[]>("eisenhower-templates") ?? [] });
+    dispatch({ type: "SET_STREAK", streak: loadJSON<StreakData>("eisenhower-streak") ?? initialState.streak });
+    dispatch({ type: "SET_ACHIEVEMENTS", achievements: loadJSON<Achievement[]>("eisenhower-achievements") ?? [] });
   }, []);
 
+  // Persist on change
   useEffect(() => {
-    if (state.loaded) {
-      saveTodos(state.todos);
-    }
+    if (state.loaded) saveTodos(state.todos);
   }, [state.todos, state.loaded]);
+
+  useEffect(() => {
+    if (state.loaded) saveJSON("eisenhower-tags", state.tags);
+  }, [state.tags, state.loaded]);
+
+  useEffect(() => {
+    if (state.loaded) saveJSON("eisenhower-templates", state.templates);
+  }, [state.templates, state.loaded]);
+
+  useEffect(() => {
+    if (state.loaded) saveJSON("eisenhower-streak", state.streak);
+  }, [state.streak, state.loaded]);
+
+  useEffect(() => {
+    if (state.loaded) saveJSON("eisenhower-achievements", state.achievements);
+  }, [state.achievements, state.loaded]);
+
+  // ─── Callbacks ───
 
   const addTodo = useCallback(
     (params: {
@@ -143,6 +275,8 @@ export function TodoProvider({ children }: { children: ReactNode }) {
       startTime?: string;
       endTime?: string;
       memo?: string;
+      subtasks?: Subtask[];
+      tags?: string[];
     }) => {
       const todosInQuadrant = state.todos.filter(
         (t) => t.quadrant === params.quadrant && t.date === params.date
@@ -163,6 +297,8 @@ export function TodoProvider({ children }: { children: ReactNode }) {
         memo: params.memo ?? "",
         createdAt: new Date().toISOString(),
         order: todosInQuadrant.length,
+        subtasks: params.subtasks ?? [],
+        tags: params.tags ?? [],
       };
       dispatch({ type: "ADD", todo });
     },
@@ -176,19 +312,30 @@ export function TodoProvider({ children }: { children: ReactNode }) {
   );
 
   const deleteTodo = useCallback(
-    (id: string) => dispatch({ type: "DELETE", id }),
-    []
+    (id: string) => {
+      const todo = state.todos.find((t) => t.id === id);
+      if (todo) dispatch({ type: "SET_UNDO", action: { type: "delete", todo } });
+      dispatch({ type: "DELETE", id });
+    },
+    [state.todos]
   );
 
   const toggleComplete = useCallback(
-    (id: string) => dispatch({ type: "TOGGLE_COMPLETE", id }),
-    []
+    (id: string) => {
+      const todo = state.todos.find((t) => t.id === id);
+      if (todo) dispatch({ type: "SET_UNDO", action: { type: "toggle", id, wasCompleted: todo.completed } });
+      dispatch({ type: "TOGGLE_COMPLETE", id });
+    },
+    [state.todos]
   );
 
   const moveQuadrant = useCallback(
-    (id: string, quadrant: Quadrant) =>
-      dispatch({ type: "MOVE_QUADRANT", id, quadrant }),
-    []
+    (id: string, quadrant: Quadrant) => {
+      const todo = state.todos.find((t) => t.id === id);
+      if (todo) dispatch({ type: "SET_UNDO", action: { type: "move", id, fromQuadrant: todo.quadrant } });
+      dispatch({ type: "MOVE_QUADRANT", id, quadrant });
+    },
+    [state.todos]
   );
 
   const reorder = useCallback(
@@ -225,11 +372,25 @@ export function TodoProvider({ children }: { children: ReactNode }) {
     [state.todos]
   );
 
+  const addTag = useCallback((tag: Tag) => dispatch({ type: "ADD_TAG", tag }), []);
+  const deleteTag = useCallback((id: string) => dispatch({ type: "DELETE_TAG", id }), []);
+  const addTemplate = useCallback((template: Template) => dispatch({ type: "ADD_TEMPLATE", template }), []);
+  const deleteTemplate = useCallback((id: string) => dispatch({ type: "DELETE_TEMPLATE", id }), []);
+  const setLastAction = useCallback((action: UndoAction | null) => dispatch({ type: "SET_UNDO", action }), []);
+  const undo = useCallback(() => dispatch({ type: "UNDO" }), []);
+  const setStreak = useCallback((streak: StreakData) => dispatch({ type: "SET_STREAK", streak }), []);
+  const addAchievement = useCallback((achievement: Achievement) => dispatch({ type: "ADD_ACHIEVEMENT", achievement }), []);
+
   return (
     <TodoContext.Provider
       value={{
         todos: state.todos,
         loaded: state.loaded,
+        tags: state.tags,
+        templates: state.templates,
+        streak: state.streak,
+        achievements: state.achievements,
+        lastAction: state.lastAction,
         addTodo,
         updateTodo,
         deleteTodo,
@@ -238,6 +399,14 @@ export function TodoProvider({ children }: { children: ReactNode }) {
         reorder,
         getTodosForDate,
         getTodosForQuadrant,
+        addTag,
+        deleteTag,
+        addTemplate,
+        deleteTemplate,
+        setLastAction,
+        undo,
+        setStreak,
+        addAchievement,
       }}
     >
       {children}

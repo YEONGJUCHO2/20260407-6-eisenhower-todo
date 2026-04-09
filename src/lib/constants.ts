@@ -94,3 +94,29 @@ export const TABS = [
   { id: "matrix" as const, label: "매트릭스", icon: "grid_view" },
   { id: "report" as const, label: "리포트", icon: "bar_chart" },
 ];
+
+export const TAG_COLORS = [
+  "#adc6ff", // blue
+  "#ffb3ad", // red
+  "#ffb95f", // orange
+  "#a8d5ba", // green
+  "#d4b5ff", // purple
+  "#ffd6e0", // pink
+  "#80deea", // cyan
+  "#fff59d", // yellow
+] as const;
+
+export const ACHIEVEMENTS = {
+  first_todo: { name: "첫 발걸음", desc: "첫 할 일 추가", icon: "flag" },
+  first_complete: { name: "시작이 반", desc: "첫 할 일 완료", icon: "check_circle" },
+  streak_7: { name: "일주일 전사", desc: "7일 연속 달성", icon: "local_fire_department" },
+  streak_30: { name: "한 달의 기적", desc: "30일 연속 달성", icon: "whatshot" },
+  plan_10: { name: "전략가의 길", desc: "PLAN 10개 완료", icon: "psychology" },
+  all_clear: { name: "올 클리어", desc: "하루 할 일 전부 완료", icon: "stars" },
+  early_bird: { name: "얼리버드", desc: "오전 6시 전 완료", icon: "wb_twilight" },
+  centurion: { name: "백전백승", desc: "총 100개 완료", icon: "military_tech" },
+  organizer: { name: "정리의 달인", desc: "태그 5개 이상 사용", icon: "label" },
+  focus_master: { name: "집중의 신", desc: "포커스 모드 5회 완료", icon: "center_focus_strong" },
+} as const;
+
+export type AchievementType = keyof typeof ACHIEVEMENTS;
