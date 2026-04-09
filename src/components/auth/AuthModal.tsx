@@ -53,7 +53,24 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
     setLoading(false);
   };
 
+  const isInAppBrowser = () => {
+    const ua = navigator.userAgent || "";
+    return /KAKAOTALK|FBAN|FBAV|Instagram|Line|NAVER|Snapchat|Twitter/i.test(ua);
+  };
+
   const handleGoogleLogin = async () => {
+    if (isInAppBrowser()) {
+      // 인앱 브라우저에서는 외부 브라우저로 유도
+      const url = window.location.href;
+      if (/KAKAOTALK/i.test(navigator.userAgent)) {
+        // 카카오톡: kakaotalk://web/openExternal 스킴 사용
+        window.location.href = `kakaotalk://web/openExternal?url=${encodeURIComponent(url)}`;
+      } else {
+        // 기타 인앱: intent 또는 안내 메시지
+        setError("인앱 브라우저에서는 Google 로그인이 불가합니다. 우측 상단 ⋮ 메뉴에서 '외부 브라우저로 열기'를 선택해주세요.");
+      }
+      return;
+    }
     if (!supabase) return;
     setLoading(true);
     const { error } = await supabase.auth.signInWithOAuth({
