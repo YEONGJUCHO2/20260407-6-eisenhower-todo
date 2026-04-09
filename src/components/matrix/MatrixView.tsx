@@ -19,13 +19,15 @@ import { useTodoContext } from "@/hooks/useTodos";
 import QuadrantBox from "./QuadrantBox";
 import AxisArrows, { VerticalArrow } from "./AxisArrows";
 import TodayWidget from "./TodayWidget";
+import { formatDateKR, addDays, toDateString, isToday as checkIsToday } from "@/lib/date-utils";
 
 interface MatrixViewProps {
   date: string;
   onTaskTap?: (todoId: string) => void;
+  onDateChange?: (date: Date) => void;
 }
 
-export default function MatrixView({ date, onTaskTap }: MatrixViewProps) {
+export default function MatrixView({ date, onTaskTap, onDateChange }: MatrixViewProps) {
   const { moveQuadrant, todos } = useTodoContext();
   const [activeId, setActiveId] = useState<string | null>(null);
   const [overQuadrant, setOverQuadrant] = useState<Quadrant | null>(null);
@@ -88,6 +90,33 @@ export default function MatrixView({ date, onTaskTap }: MatrixViewProps) {
       onDragEnd={handleDragEnd}
     >
       <div className="px-lg" style={{ height: "calc(100dvh - 148px)" }}>
+        {/* Date navigation */}
+        {onDateChange && (
+          <div className="flex items-center justify-center gap-3 mb-1">
+            <button
+              onClick={() => onDateChange(addDays(new Date(date), -1))}
+              className="w-7 h-7 flex items-center justify-center rounded-full text-on-surface-variant hover:text-on-surface"
+            >
+              <span className="material-symbols-outlined text-[16px]">chevron_left</span>
+            </button>
+            <button
+              onClick={() => onDateChange(new Date())}
+              className={`text-body-sm font-medium px-2 py-0.5 rounded-full transition-colors ${
+                checkIsToday(new Date(date))
+                  ? "text-quadrant-plan-primary"
+                  : "text-on-surface-variant hover:text-on-surface"
+              }`}
+            >
+              {formatDateKR(new Date(date))}
+            </button>
+            <button
+              onClick={() => onDateChange(addDays(new Date(date), 1))}
+              className="w-7 h-7 flex items-center justify-center rounded-full text-on-surface-variant hover:text-on-surface"
+            >
+              <span className="material-symbols-outlined text-[16px]">chevron_right</span>
+            </button>
+          </div>
+        )}
         <TodayWidget date={date} />
         <AxisArrows />
         <div className="flex" style={{ height: "calc(100% - 36px)" }}>

@@ -108,6 +108,7 @@ export default function Home() {
             <MatrixView
               date={toDateString(selectedDate)}
               onTaskTap={(id) => setDetailTodoId(id)}
+              onDateChange={setSelectedDate}
             />
           )}
           {activeTab === "report" && <ReportView />}

@@ -1,11 +1,20 @@
 "use client";
 
+import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Todo } from "@/lib/types";
 import { QUADRANTS } from "@/lib/constants";
 import { useTodoContext } from "@/hooks/useTodos";
+
+// Sticky note pastel backgrounds per quadrant
+const STICKY_COLORS: Record<string, { bg: string; border: string }> = {
+  do: { bg: "rgba(255,180,173,0.15)", border: "rgba(255,84,81,0.25)" },
+  plan: { bg: "rgba(173,198,255,0.15)", border: "rgba(5,102,217,0.25)" },
+  delegate: { bg: "rgba(255,185,95,0.15)", border: "rgba(202,129,0,0.25)" },
+  delete: { bg: "rgba(140,144,159,0.10)", border: "rgba(66,71,84,0.20)" },
+};
 
 interface TaskCardProps {
   todo: Todo;
@@ -15,6 +24,16 @@ interface TaskCardProps {
 export default function TaskCard({ todo, onTap }: TaskCardProps) {
   const { toggleComplete, deleteTodo } = useTodoContext();
   const q = QUADRANTS[todo.quadrant];
+  const sticky = STICKY_COLORS[todo.quadrant];
+
+  // Deterministic slight rotation based on id hash
+  const rotation = useMemo(() => {
+    let hash = 0;
+    for (let i = 0; i < todo.id.length; i++) {
+      hash = (hash << 5) - hash + todo.id.charCodeAt(i);
+    }
+    return ((hash % 5) - 2) * 0.8; // -1.6 to 1.6 degrees
+  }, [todo.id]);
 
   const {
     attributes,
@@ -35,11 +54,16 @@ export default function TaskCard({ todo, onTap }: TaskCardProps) {
     <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
       <motion.div
         layout
-        className={`glass-card rounded-md px-3 py-[10px] flex items-center gap-2 cursor-grab select-none active:cursor-grabbing ${
+        className={`rounded-md px-3 py-[10px] flex items-center gap-2 cursor-grab select-none active:cursor-grabbing ${
           isDragging
-            ? "shadow-[0_20px_40px_rgba(0,0,0,0.4)] scale-[1.04] -rotate-[1.5deg] z-50"
-            : ""
+            ? "shadow-[0_20px_40px_rgba(0,0,0,0.4)] scale-[1.04] z-50"
+            : "shadow-[0_1px_3px_rgba(0,0,0,0.1)]"
         }`}
+        style={{
+          backgroundColor: sticky.bg,
+          border: `1px solid ${sticky.border}`,
+          transform: isDragging ? "rotate(-2deg)" : `rotate(${rotation}deg)`,
+        }}
         onClick={onTap}
       >
         {/* Checkbox */}
@@ -64,7 +88,11 @@ export default function TaskCard({ todo, onTap }: TaskCardProps) {
         </button>
 
         {/* Title + Time */}
-        <div className={`flex-1 min-w-0 ${todo.completed ? "line-through opacity-60" : ""}`}>
+        <div
+          className={`flex-1 min-w-0 ${
+            todo.completed ? "line-through opacity-60" : ""
+          }`}
+        >
           <span className="text-body-sm text-on-surface truncate block">
             {todo.title}
           </span>
@@ -74,6 +102,14 @@ export default function TaskCard({ todo, onTap }: TaskCardProps) {
             </span>
           )}
         </div>
+
+        {/* Subtask progress */}
+        {todo.subtasks && todo.subtasks.length > 0 && (
+          <span className="text-[10px] text-on-surface-variant">
+            {todo.subtasks.filter((s) => s.completed).length}/
+            {todo.subtasks.length}
+          </span>
+        )}
 
         {/* Repeat badge */}
         {todo.repeat !== "none" && (

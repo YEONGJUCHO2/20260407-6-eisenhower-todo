@@ -375,7 +375,12 @@ export default function DayTaskList({
                   onSwipeLeft={() => deleteTodo(todo.id)}
                 >
                 <div
-                  className="glass-card rounded-md px-3 py-3 flex items-center gap-3 cursor-pointer"
+                  className="rounded-md px-3 py-3 flex items-center gap-3 cursor-pointer shadow-[0_1px_3px_rgba(0,0,0,0.1)]"
+                  style={{
+                    backgroundColor: todo.quadrant === "do" ? "rgba(255,180,173,0.15)" : todo.quadrant === "plan" ? "rgba(173,198,255,0.15)" : todo.quadrant === "delegate" ? "rgba(255,185,95,0.15)" : "rgba(140,144,159,0.10)",
+                    border: `1px solid ${q.primary}20`,
+                    transform: `rotate(${((todo.id.charCodeAt(0) % 5) - 2) * 0.5}deg)`,
+                  }}
                   onClick={() => onTaskTap?.(todo.id)}
                 >
                   <button
