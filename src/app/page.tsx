@@ -23,6 +23,8 @@ import { useTodoContext } from "@/hooks/useTodos";
 import { calculateStreak } from "@/lib/streak-utils";
 import { checkAchievements } from "@/lib/achievements";
 import { AchievementType } from "@/lib/constants";
+import { useSwipeNav } from "@/hooks/useSwipeNav";
+import { addDays } from "@/lib/date-utils";
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<TabId>("matrix");
@@ -77,6 +79,11 @@ export default function Home() {
     }
   }, [todos, streak, achievements, tags, addAchievement]);
 
+  const swipeHandlers = useSwipeNav({
+    onSwipeLeft: () => setSelectedDate((d) => addDays(d, 1)),
+    onSwipeRight: () => setSelectedDate((d) => addDays(d, -1)),
+  });
+
   return (
     <>
       {showOnboarding && (
@@ -97,7 +104,7 @@ export default function Home() {
           onShowOnboarding={() => setShowOnboarding(true)}
         />
 
-        <main className="flex-1 pb-20">
+        <main className="flex-1 pb-20" {...swipeHandlers}>
           {activeTab === "calendar" && (
             <CalendarView
               selectedDate={selectedDate}
