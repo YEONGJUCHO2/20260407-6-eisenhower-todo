@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { TodoProvider } from "@/providers/TodoProvider";
+import { AuthProvider } from "@/providers/AuthProvider";
 import ThemeProvider from "@/providers/ThemeProvider";
+import { NotificationProvider } from "@/providers/NotificationProvider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -37,7 +39,11 @@ export default function RootLayout({
       </head>
       <body className="font-body">
         <ThemeProvider>
-          <TodoProvider>{children}</TodoProvider>
+          <AuthProvider>
+            <TodoProvider>
+              <NotificationProvider>{children}</NotificationProvider>
+            </TodoProvider>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

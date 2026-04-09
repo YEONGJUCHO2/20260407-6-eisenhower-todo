@@ -5,6 +5,7 @@ import { formatDateKR, toDateString } from "@/lib/date-utils";
 import { QUADRANTS } from "@/lib/constants";
 import { useTodoContext } from "@/hooks/useTodos";
 import { Todo } from "@/lib/types";
+import SwipeableTask from "./SwipeableTask";
 
 function timeToMinutes(time: string): number {
   const [h, m] = time.split(":").map(Number);
@@ -318,7 +319,7 @@ export default function DayTaskList({
   selectedDate,
   onTaskTap,
 }: DayTaskListProps) {
-  const { getTodosForDate, toggleComplete, updateTodo } = useTodoContext();
+  const { getTodosForDate, toggleComplete, deleteTodo, updateTodo } = useTodoContext();
   const dateStr = toDateString(selectedDate);
   const todos = getTodosForDate(dateStr);
 
@@ -352,8 +353,12 @@ export default function DayTaskList({
             {todos.map((todo) => {
               const q = QUADRANTS[todo.quadrant];
               return (
-                <div
+                <SwipeableTask
                   key={todo.id}
+                  onSwipeRight={() => toggleComplete(todo.id)}
+                  onSwipeLeft={() => deleteTodo(todo.id)}
+                >
+                <div
                   className="glass-card rounded-md px-3 py-3 flex items-center gap-3 cursor-pointer"
                   onClick={() => onTaskTap?.(todo.id)}
                 >
@@ -403,6 +408,7 @@ export default function DayTaskList({
                     </span>
                   )}
                 </div>
+                </SwipeableTask>
               );
             })}
           </div>

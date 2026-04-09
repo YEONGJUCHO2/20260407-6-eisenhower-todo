@@ -18,6 +18,7 @@ import { Quadrant, Todo } from "@/lib/types";
 import { useTodoContext } from "@/hooks/useTodos";
 import QuadrantBox from "./QuadrantBox";
 import AxisArrows, { VerticalArrow } from "./AxisArrows";
+import TodayWidget from "./TodayWidget";
 
 interface MatrixViewProps {
   date: string;
@@ -87,6 +88,7 @@ export default function MatrixView({ date, onTaskTap }: MatrixViewProps) {
       onDragEnd={handleDragEnd}
     >
       <div className="px-lg" style={{ height: "calc(100dvh - 148px)" }}>
+        <TodayWidget date={date} />
         <AxisArrows />
         <div className="flex" style={{ height: "calc(100% - 36px)" }}>
           <VerticalArrow />

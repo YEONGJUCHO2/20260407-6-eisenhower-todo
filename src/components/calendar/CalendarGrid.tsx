@@ -12,6 +12,7 @@ import {
 } from "@/lib/date-utils";
 import { QUADRANTS, QUADRANT_ORDER } from "@/lib/constants";
 import { useTodoContext } from "@/hooks/useTodos";
+import { getActiveDates } from "@/lib/streak-utils";
 
 const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
 
@@ -30,6 +31,7 @@ export default function CalendarGrid({
 }: CalendarGridProps) {
   const { todos } = useTodoContext();
   const grid = useMemo(() => getCalendarGrid(currentMonth), [currentMonth]);
+  const activeDates = useMemo(() => getActiveDates(todos), [todos]);
 
   const dateDots = useMemo(() => {
     const map: Record<string, Set<string>> = {};
@@ -90,6 +92,7 @@ export default function CalendarGrid({
           const isSelected = isSameDay(day, selectedDate);
           const today = isToday(day);
           const dots = dateDots[dateStr];
+          const isActive = activeDates.has(dateStr);
 
           return (
             <button
@@ -104,7 +107,9 @@ export default function CalendarGrid({
               }`}
               aria-label={dateStr}
             >
-              <span className="text-body-sm">{day.getDate()}</span>
+              <span className="text-body-sm">
+                {isActive ? "🔥" : day.getDate()}
+              </span>
               {dots && dots.size > 0 && (
                 <div className="flex gap-[1px] mt-[1px]">
                   {QUADRANT_ORDER.filter((q) => dots.has(q))

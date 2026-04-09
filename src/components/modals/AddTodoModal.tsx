@@ -15,6 +15,7 @@ interface AddTodoModalProps {
   onClose: () => void;
   defaultDate?: Date;
   defaultQuadrant?: Quadrant;
+  onOpenTemplate?: () => void;
 }
 
 export default function AddTodoModal({
@@ -22,6 +23,7 @@ export default function AddTodoModal({
   onClose,
   defaultDate,
   defaultQuadrant,
+  onOpenTemplate,
 }: AddTodoModalProps) {
   const { addTodo } = useTodoContext();
   const [title, setTitle] = useState("");
@@ -195,6 +197,17 @@ export default function AddTodoModal({
             >
               추가하기
             </button>
+            {onOpenTemplate && (
+              <button
+                onClick={() => {
+                  onClose();
+                  onOpenTemplate();
+                }}
+                className="w-full mt-2 py-2 text-body-sm text-quadrant-plan-primary"
+              >
+                템플릿에서 추가
+              </button>
+            )}
           </motion.div>
         </>
       )}
