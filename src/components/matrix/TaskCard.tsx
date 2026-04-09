@@ -26,14 +26,7 @@ export default function TaskCard({ todo, onTap }: TaskCardProps) {
   const q = QUADRANTS[todo.quadrant];
   const sticky = STICKY_COLORS[todo.quadrant];
 
-  // Deterministic slight rotation based on id hash
-  const rotation = useMemo(() => {
-    let hash = 0;
-    for (let i = 0; i < todo.id.length; i++) {
-      hash = (hash << 5) - hash + todo.id.charCodeAt(i);
-    }
-    return ((hash % 5) - 2) * 0.8; // -1.6 to 1.6 degrees
-  }, [todo.id]);
+  // No rotation — clean aligned cards
 
   const {
     attributes,
@@ -62,7 +55,7 @@ export default function TaskCard({ todo, onTap }: TaskCardProps) {
         style={{
           backgroundColor: sticky.bg,
           border: `1px solid ${sticky.border}`,
-          transform: isDragging ? "rotate(-2deg)" : `rotate(${rotation}deg)`,
+          transform: isDragging ? "rotate(-2deg) scale(1.04)" : undefined,
         }}
         onClick={onTap}
       >

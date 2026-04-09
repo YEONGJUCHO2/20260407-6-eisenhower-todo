@@ -306,21 +306,6 @@ function TimelineBar({
           );
         })()}
 
-        {/* Bottom hour labels */}
-        <div className="relative h-4 mt-1">
-          {hours.map((h, i) => (
-            <span
-              key={h}
-              className="absolute text-[9px] font-medium text-outline"
-              style={{
-                left: `${((h - startHour) / totalHours) * 100}%`,
-                transform: i === hours.length - 1 ? "translateX(-100%)" : i === 0 ? "none" : "translateX(-50%)",
-              }}
-            >
-              {h}시
-            </span>
-          ))}
-        </div>
       </div>
     </div>
   );
@@ -379,7 +364,6 @@ export default function DayTaskList({
                   style={{
                     backgroundColor: todo.quadrant === "do" ? "rgba(255,180,173,0.15)" : todo.quadrant === "plan" ? "rgba(173,198,255,0.15)" : todo.quadrant === "delegate" ? "rgba(255,185,95,0.15)" : "rgba(140,144,159,0.10)",
                     border: `1px solid ${q.primary}20`,
-                    transform: `rotate(${((todo.id.charCodeAt(0) % 5) - 2) * 0.5}deg)`,
                   }}
                   onClick={() => onTaskTap?.(todo.id)}
                 >

@@ -36,9 +36,11 @@ export default function AddTodoModal({
   const [startTime, setStartTime] = useState("09:00");
   const [endTime, setEndTime] = useState("10:00");
   const [hasTime, setHasTime] = useState(false);
+  const submittingRef = useRef(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const resetForm = () => {
+    submittingRef.current = false;
     setTitle("");
     setQuadrant(defaultQuadrant ?? "plan");
     setDate(toDateString(defaultDate ?? new Date()));
@@ -60,11 +62,13 @@ export default function AddTodoModal({
   }, [isOpen, defaultDate, defaultQuadrant]);
 
   const handleSubmit = () => {
+    if (submittingRef.current) return;
     const trimmed = title.trim();
     if (!trimmed) {
       setError(true);
       return;
     }
+    submittingRef.current = true;
     addTodo({
       title: trimmed,
       quadrant,

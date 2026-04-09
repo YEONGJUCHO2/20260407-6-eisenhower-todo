@@ -35,15 +35,15 @@ export default function SwipeableTask({
         className="absolute inset-0 flex items-center justify-between px-4"
         style={{ opacity: bgOpacity }}
       >
-        <div className="flex items-center gap-2 text-green-400">
-          <span className="material-symbols-outlined text-[18px]">
-            check_circle
-          </span>
-          <span className="text-body-sm font-medium">완료</span>
-        </div>
         <div className="flex items-center gap-2 text-red-400">
+          <span className="material-symbols-outlined text-[18px]">
+            delete
+          </span>
           <span className="text-body-sm font-medium">삭제</span>
-          <span className="material-symbols-outlined text-[18px]">delete</span>
+        </div>
+        <div className="flex items-center gap-2 text-green-400">
+          <span className="text-body-sm font-medium">완료</span>
+          <span className="material-symbols-outlined text-[18px]">check_circle</span>
         </div>
       </motion.div>
 
