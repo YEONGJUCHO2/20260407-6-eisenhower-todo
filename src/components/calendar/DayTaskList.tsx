@@ -237,17 +237,17 @@ function TimelineBar({
         {hours.map((h) => (
           <div
             key={h}
-            className="absolute top-0 bottom-0 w-px bg-outline/15 z-0"
+            className="absolute top-0 bottom-0 w-px bg-outline/30 z-0"
             style={{ left: `${((h - startHour) / totalHours) * 100}%` }}
           />
         ))}
 
         {/* Timeline track */}
-        <div className="relative bg-surface-container-highest rounded-full h-[8px] mb-2 z-[1]">
+        <div className="relative bg-outline/20 rounded-full h-[8px] mb-2 z-[1]">
           {hours.map((h) => (
             <div
               key={h}
-              className="absolute top-0 bottom-0 w-px bg-outline/30"
+              className="absolute top-0 bottom-0 w-px bg-outline/40"
               style={{ left: `${((h - startHour) / totalHours) * 100}%` }}
             />
           ))}
@@ -305,6 +305,22 @@ function TimelineBar({
             </div>
           );
         })()}
+
+        {/* Bottom hour labels */}
+        <div className="relative h-4 mt-1">
+          {hours.map((h, i) => (
+            <span
+              key={h}
+              className="absolute text-[9px] font-medium text-outline"
+              style={{
+                left: `${((h - startHour) / totalHours) * 100}%`,
+                transform: i === hours.length - 1 ? "translateX(-100%)" : i === 0 ? "none" : "translateX(-50%)",
+              }}
+            >
+              {h}시
+            </span>
+          ))}
+        </div>
       </div>
     </div>
   );

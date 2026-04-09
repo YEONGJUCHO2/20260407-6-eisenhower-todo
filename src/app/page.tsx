@@ -128,6 +128,10 @@ export default function Home() {
         <TemplateModal
           isOpen={showTemplate}
           onClose={() => setShowTemplate(false)}
+          onBack={() => {
+            setShowTemplate(false);
+            setShowAddModal(true);
+          }}
           date={toDateString(selectedDate)}
         />
 

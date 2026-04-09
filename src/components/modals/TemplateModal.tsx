@@ -10,12 +10,14 @@ import QuadrantSelector from "@/components/ui/QuadrantSelector";
 interface TemplateModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onBack?: () => void;
   date: string;
 }
 
 export default function TemplateModal({
   isOpen,
   onClose,
+  onBack,
   date,
 }: TemplateModalProps) {
   const { templates, addTemplate, deleteTemplate, addTodo } = useTodoContext();
@@ -85,6 +87,14 @@ export default function TemplateModal({
             <div className="flex justify-center mb-4">
               <div className="w-10 h-1 rounded-full bg-outline/30" />
             </div>
+
+            {/* Back button */}
+            <button
+              onClick={onBack ?? onClose}
+              className="text-body-sm text-on-surface-variant mb-3 flex items-center gap-1"
+            >
+              ← 돌아가기
+            </button>
 
             {/* Tab buttons */}
             <div className="flex gap-2 mb-4">
