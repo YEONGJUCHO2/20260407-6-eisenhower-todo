@@ -40,7 +40,6 @@ export default function ReportView() {
 
   const handleExportMD = useCallback(() => {
     const lines: string[] = [];
-    lines.push(`# ${weekLabel}\n`);
 
     const quadrantLabels = {
       do: "즉시 실행",
@@ -57,38 +56,30 @@ export default function ReportView() {
 
     const weekTodos = todos.filter((t) => dateStrings.includes(t.date));
 
-    (["do", "plan", "delegate", "delete"] as const).forEach((qId) => {
-      const qTodos = weekTodos.filter((t) => t.quadrant === qId);
-      if (qTodos.length === 0) return;
-      lines.push(`## ${quadrantLabels[qId]}\n`);
-      qTodos.forEach((t) => {
-        const check = t.completed ? "x" : " ";
+    // Group by date, then by quadrant within each date
+    dateStrings.forEach((dateStr) => {
+      const dayTodos = weekTodos.filter((t) => t.date === dateStr);
+      if (dayTodos.length === 0) return;
 
-        // Date in M월 d일 format
-        const taskDate = format(new Date(t.date), "M월 d일", { locale: ko });
+      const dayLabel = format(new Date(dateStr), "M월 d일 EEEE", { locale: ko });
+      lines.push(`# ${dayLabel}\n`);
 
-        // Time range if available
-        const timeStr =
-          t.startTime && t.endTime
-            ? ` ${t.startTime}-${t.endTime}`
-            : t.startTime
-              ? ` ${t.startTime}`
+      (["do", "plan", "delegate", "delete"] as const).forEach((qId) => {
+        const qTodos = dayTodos.filter((t) => t.quadrant === qId);
+        if (qTodos.length === 0) return;
+        lines.push(`## ${quadrantLabels[qId]}\n`);
+        qTodos.forEach((t) => {
+          const check = t.completed ? "x" : " ";
+          const timeStr =
+            t.startTime && t.endTime
+              ? ` ${t.startTime}-${t.endTime}`
               : "";
-
-        // Completion status with completedAt date
-        const completionStr = t.completed
-          ? t.completedAt
-            ? ` ✓ ${format(new Date(t.completedAt), "M월 d일", { locale: ko })} 완료`
-            : " ✓ 완료"
-          : "";
-
-        const repeat = t.repeat !== "none" ? " 🔁" : "";
-
-        lines.push(
-          `- [${check}] ${t.title} (${taskDate}${timeStr})${completionStr}${repeat}`
-        );
+          const completionStr = t.completed ? " ✓ 완료" : "";
+          const repeat = t.repeat !== "none" ? " 🔁" : "";
+          lines.push(`- [${check}] ${t.title}${timeStr}${completionStr}${repeat}`);
+        });
+        lines.push("");
       });
-      lines.push("");
     });
 
     lines.push(`---`);
