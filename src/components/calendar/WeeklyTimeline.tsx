@@ -63,12 +63,12 @@ export default function WeeklyTimeline({
     <div className="px-lg mt-4 overflow-x-auto">
       <div className="flex" style={{ minWidth: "600px" }}>
         {/* Hour labels */}
-        <div className="w-10 flex-shrink-0">
+        <div className="w-12 flex-shrink-0">
           <div className="h-8" /> {/* header spacer */}
           {hours.map((h) => (
             <div
               key={h}
-              className="text-[9px] text-outline text-right pr-1"
+              className="text-label-lg text-on-surface-variant text-right pr-1"
               style={{ height: `${200 / totalHours}px` }}
             >
               {h}시
@@ -90,10 +90,10 @@ export default function WeeklyTimeline({
                   isToday ? "text-quadrant-plan-primary" : "text-on-surface-variant"
                 }`}
               >
-                <span className="text-[9px] font-medium">
+                <span className="text-label-lg font-semibold">
                   {format(day, "EEE", { locale: ko })}
                 </span>
-                <span className="text-[10px] font-semibold">
+                <span className="text-body-sm font-semibold">
                   {format(day, "d")}
                 </span>
               </div>
@@ -107,7 +107,7 @@ export default function WeeklyTimeline({
                 {hours.map((h) => (
                   <div
                     key={h}
-                    className="absolute left-0 right-0 border-t border-white/5"
+                    className="absolute left-0 right-0 border-t border-on-surface-variant/15"
                     style={{
                       top: `${((h - startHour) / totalHours) * 100}%`,
                     }}

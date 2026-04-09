@@ -74,7 +74,7 @@ export default function CalendarGrid({
         {WEEKDAYS.map((d) => (
           <div
             key={d}
-            className="text-center text-label-sm text-outline py-1"
+            className="text-center text-label-lg text-on-surface-variant font-semibold py-1"
           >
             {d}
           </div>
@@ -107,7 +107,7 @@ export default function CalendarGrid({
               }`}
               aria-label={dateStr}
             >
-              <span className="text-body-sm">
+              <span className="text-body-md font-medium">
                 {isActive ? "🔥" : day.getDate()}
               </span>
               {dots && dots.size > 0 && (
