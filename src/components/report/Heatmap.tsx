@@ -53,7 +53,7 @@ export default function Heatmap({ todos }: HeatmapProps) {
     return 1;
   };
 
-  const dayLabels = ["", "월", "", "수", "", "금", ""];
+  const dayLabels = ["월", "화", "수", "목", "금", "토", "일"];
 
   return (
     <div>
