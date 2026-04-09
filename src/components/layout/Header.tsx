@@ -4,11 +4,13 @@ import { formatDateKR } from "@/lib/date-utils";
 import AppLogo from "../common/AppLogo";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useTodoContext } from "@/hooks/useTodos";
+import { useAuth } from "@/providers/AuthProvider";
 
 interface HeaderProps {
   selectedDate: Date;
   onSearchOpen?: () => void;
   onFocusOpen?: () => void;
+  onAuthOpen?: () => void;
 }
 
 const THEME_CYCLE = { dark: "light", light: "system", system: "dark" } as const;
@@ -22,9 +24,11 @@ export default function Header({
   selectedDate,
   onSearchOpen,
   onFocusOpen,
+  onAuthOpen,
 }: HeaderProps) {
   const { theme, setTheme } = useTheme();
   const { streak } = useTodoContext();
+  const { user, signOut } = useAuth();
 
   return (
     <header className="sticky top-0 z-40 bg-surface-container-lowest/80 backdrop-blur-[48px]">
@@ -68,6 +72,28 @@ export default function Header({
               {THEME_ICON[theme]}
             </span>
           </button>
+          {user ? (
+            <button
+              onClick={signOut}
+              className="w-8 h-8 flex items-center justify-center rounded-full bg-quadrant-plan-primary/20 text-quadrant-plan-primary transition-colors"
+              aria-label="로그아웃"
+              title={user.email ?? ""}
+            >
+              <span className="material-symbols-outlined text-[18px]">
+                logout
+              </span>
+            </button>
+          ) : (
+            <button
+              onClick={onAuthOpen}
+              className="w-8 h-8 flex items-center justify-center rounded-full text-outline hover:text-on-surface transition-colors"
+              aria-label="로그인"
+            >
+              <span className="material-symbols-outlined text-[18px]">
+                person
+              </span>
+            </button>
+          )}
           <span className="text-body-sm text-on-surface-variant">
             {formatDateKR(selectedDate)}
           </span>

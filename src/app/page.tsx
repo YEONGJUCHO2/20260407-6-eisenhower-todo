@@ -17,6 +17,7 @@ import UndoToast from "@/components/common/UndoToast";
 import SearchOverlay from "@/components/common/SearchOverlay";
 import AchievementToast from "@/components/common/AchievementToast";
 import FocusMode from "@/components/focus/FocusMode";
+import AuthModal from "@/components/auth/AuthModal";
 import { isOnboardingDone } from "@/lib/storage";
 import { useTodoContext } from "@/hooks/useTodos";
 import { calculateStreak } from "@/lib/streak-utils";
@@ -33,6 +34,7 @@ export default function Home() {
   const [showFocusMode, setShowFocusMode] = useState(false);
   const [showTemplate, setShowTemplate] = useState(false);
   const [newAchievement, setNewAchievement] = useState<AchievementType | null>(null);
+  const [showAuth, setShowAuth] = useState(false);
 
   const {
     todos,
@@ -91,6 +93,7 @@ export default function Home() {
           selectedDate={selectedDate}
           onSearchOpen={() => setShowSearch(true)}
           onFocusOpen={() => setShowFocusMode(true)}
+          onAuthOpen={() => setShowAuth(true)}
         />
 
         <main className="flex-1 pb-20">
@@ -137,6 +140,7 @@ export default function Home() {
           }}
         />
 
+        <AuthModal isOpen={showAuth} onClose={() => setShowAuth(false)} />
         <UndoToast />
         <AchievementToast
           achievementType={newAchievement}
