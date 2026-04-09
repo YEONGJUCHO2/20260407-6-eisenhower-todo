@@ -18,8 +18,7 @@ import { Quadrant, Todo } from "@/lib/types";
 import { useTodoContext } from "@/hooks/useTodos";
 import QuadrantBox from "./QuadrantBox";
 import AxisArrows, { VerticalArrow } from "./AxisArrows";
-import TodayWidget from "./TodayWidget";
-import { formatDateKR, addDays, toDateString, isToday as checkIsToday } from "@/lib/date-utils";
+import { formatDateKR, addDays, isToday as checkIsToday } from "@/lib/date-utils";
 
 interface MatrixViewProps {
   date: string;
@@ -81,6 +80,9 @@ export default function MatrixView({ date, onTaskTap, onDateChange }: MatrixView
     }
   }
 
+  // Date nav height: 28px, axis arrows: 36px, gap: 8px = ~72px overhead
+  const gridHeight = onDateChange ? "calc(100dvh - 192px)" : "calc(100dvh - 164px)";
+
   return (
     <DndContext
       sensors={sensors}
@@ -89,10 +91,10 @@ export default function MatrixView({ date, onTaskTap, onDateChange }: MatrixView
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
     >
-      <div className="px-lg" style={{ height: "calc(100dvh - 148px)" }}>
+      <div className="px-lg pb-2">
         {/* Date navigation */}
         {onDateChange && (
-          <div className="flex items-center justify-center gap-3 mb-1">
+          <div className="flex items-center justify-center gap-3 py-1">
             <button
               onClick={() => onDateChange(addDays(new Date(date), -1))}
               className="w-7 h-7 flex items-center justify-center rounded-full text-on-surface-variant hover:text-on-surface"
@@ -117,9 +119,8 @@ export default function MatrixView({ date, onTaskTap, onDateChange }: MatrixView
             </button>
           </div>
         )}
-        <TodayWidget date={date} />
         <AxisArrows />
-        <div className="flex" style={{ height: "calc(100% - 36px)" }}>
+        <div className="flex" style={{ height: gridHeight }}>
           <VerticalArrow />
           <div className="grid grid-cols-2 grid-rows-2 gap-2 flex-1">
             {QUADRANT_ORDER.map((q) => (
