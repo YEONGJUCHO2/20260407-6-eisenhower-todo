@@ -99,9 +99,6 @@ export default function Header({
               </span>
             </button>
           )}
-          <span className="text-body-sm text-on-surface-variant">
-            {formatDateKR(selectedDate)}
-          </span>
         </div>
       </div>
     </header>
