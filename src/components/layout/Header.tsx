@@ -11,6 +11,7 @@ interface HeaderProps {
   onSearchOpen?: () => void;
   onFocusOpen?: () => void;
   onAuthOpen?: () => void;
+  onShowOnboarding?: () => void;
 }
 
 const THEME_CYCLE = { dark: "light", light: "system", system: "dark" } as const;
@@ -25,6 +26,7 @@ export default function Header({
   onSearchOpen,
   onFocusOpen,
   onAuthOpen,
+  onShowOnboarding,
 }: HeaderProps) {
   const { theme, setTheme } = useTheme();
   const { streak } = useTodoContext();
@@ -33,7 +35,10 @@ export default function Header({
   return (
     <header className="sticky top-0 z-40 bg-surface-container-lowest/80 backdrop-blur-[48px]">
       <div className="flex items-center justify-between px-lg py-3">
-        <div className="flex items-center gap-2">
+        <div
+          className="flex items-center gap-2 cursor-pointer"
+          onClick={() => onShowOnboarding?.()}
+        >
           <AppLogo size="sm" />
           <h1 className="font-display text-headline text-on-surface">
             아이젠하워 투두

@@ -94,6 +94,7 @@ export default function Home() {
           onSearchOpen={() => setShowSearch(true)}
           onFocusOpen={() => setShowFocusMode(true)}
           onAuthOpen={() => setShowAuth(true)}
+          onShowOnboarding={() => setShowOnboarding(true)}
         />
 
         <main className="flex-1 pb-20">
