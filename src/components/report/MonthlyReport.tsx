@@ -70,7 +70,7 @@ export default function MonthlyReport({ todos, monthDate }: MonthlyReportProps) 
                     style={{ backgroundColor: info.primary }}
                   />
                   <span className="text-body-sm text-on-surface">
-                    {info.sublabel}
+                    {info.label}
                   </span>
                 </div>
                 <span

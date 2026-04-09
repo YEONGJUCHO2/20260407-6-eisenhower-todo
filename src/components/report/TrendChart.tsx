@@ -31,7 +31,7 @@ export default function TrendChart({ weeklyTrend }: TrendChartProps) {
         labels,
         datasets: [
           {
-            label: "DO",
+            label: "즉시 실행",
             data: weeklyTrend.map((w) => w.do),
             borderColor: "#ffb3ad",
             backgroundColor: "rgba(255,179,173,0.1)",
@@ -39,7 +39,7 @@ export default function TrendChart({ weeklyTrend }: TrendChartProps) {
             pointRadius: 3,
           },
           {
-            label: "PLAN",
+            label: "계획 수립",
             data: weeklyTrend.map((w) => w.plan),
             borderColor: "#adc6ff",
             backgroundColor: "rgba(173,198,255,0.1)",
@@ -47,7 +47,7 @@ export default function TrendChart({ weeklyTrend }: TrendChartProps) {
             pointRadius: 3,
           },
           {
-            label: "DELEGATE",
+            label: "위임",
             data: weeklyTrend.map((w) => w.delegate),
             borderColor: "#ffb95f",
             backgroundColor: "rgba(255,185,95,0.1)",
@@ -55,7 +55,7 @@ export default function TrendChart({ weeklyTrend }: TrendChartProps) {
             pointRadius: 3,
           },
           {
-            label: "DELETE",
+            label: "제거",
             data: weeklyTrend.map((w) => w.delete),
             borderColor: "#8c909f",
             backgroundColor: "rgba(140,144,159,0.1)",
