@@ -7,6 +7,7 @@ import {
   useEffect,
   ReactNode,
   useCallback,
+  useRef,
 } from "react";
 import {
   Todo,
@@ -21,6 +22,20 @@ import {
 } from "@/lib/types";
 import { loadTodos, saveTodos, loadJSON, saveJSON } from "@/lib/storage";
 import { generateRecurringForDate, parseISO } from "@/lib/date-utils";
+import { useAuth } from "@/providers/AuthProvider";
+import {
+  fetchTodos,
+  upsertTodo,
+  deleteTodoDb,
+  fetchTags,
+  upsertTag,
+  deleteTagDb,
+  fetchTemplates,
+  upsertTemplate,
+  deleteTemplateDb,
+  fetchAchievements,
+  insertAchievement,
+} from "@/lib/supabase-db";
 
 // ─── State ───
 
@@ -123,7 +138,6 @@ function todoReducer(state: TodoState, action: TodoAction): TodoState {
       return { ...state, todos };
     }
 
-    // Tags
     case "SET_TAGS":
       return { ...state, tags: action.tags };
     case "ADD_TAG":
@@ -131,7 +145,6 @@ function todoReducer(state: TodoState, action: TodoAction): TodoState {
     case "DELETE_TAG":
       return { ...state, tags: state.tags.filter((t) => t.id !== action.id) };
 
-    // Templates
     case "SET_TEMPLATES":
       return { ...state, templates: action.templates };
     case "ADD_TEMPLATE":
@@ -142,11 +155,9 @@ function todoReducer(state: TodoState, action: TodoAction): TodoState {
         templates: state.templates.filter((t) => t.id !== action.id),
       };
 
-    // Streak
     case "SET_STREAK":
       return { ...state, streak: action.streak };
 
-    // Achievements
     case "SET_ACHIEVEMENTS":
       return { ...state, achievements: action.achievements };
     case "ADD_ACHIEVEMENT":
@@ -155,7 +166,6 @@ function todoReducer(state: TodoState, action: TodoAction): TodoState {
         achievements: [...state.achievements, action.achievement],
       };
 
-    // Undo
     case "SET_UNDO":
       return { ...state, lastAction: action.action };
     case "UNDO": {
@@ -167,7 +177,11 @@ function todoReducer(state: TodoState, action: TodoAction): TodoState {
       } else if (la.type === "toggle") {
         todos = todos.map((t) =>
           t.id === la.id
-            ? { ...t, completed: la.wasCompleted, completedAt: la.wasCompleted ? t.completedAt : null }
+            ? {
+                ...t,
+                completed: la.wasCompleted,
+                completedAt: la.wasCompleted ? t.completedAt : null,
+              }
             : t
         );
       } else if (la.type === "move") {
@@ -230,19 +244,82 @@ const TodoContext = createContext<TodoContextValue | null>(null);
 
 export function TodoProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(todoReducer, initialState);
+  const { user } = useAuth();
+  const syncingRef = useRef(false);
+  const prevUserRef = useRef<string | null>(null);
 
-  // Load all data from localStorage
+  // ─── Load data: Supabase if logged in, localStorage if not ───
   useEffect(() => {
-    dispatch({ type: "LOAD", todos: loadTodos() });
-    dispatch({ type: "SET_TAGS", tags: loadJSON<Tag[]>("eisenhower-tags") ?? [] });
-    dispatch({ type: "SET_TEMPLATES", templates: loadJSON<Template[]>("eisenhower-templates") ?? [] });
-    dispatch({ type: "SET_STREAK", streak: loadJSON<StreakData>("eisenhower-streak") ?? initialState.streak });
-    dispatch({ type: "SET_ACHIEVEMENTS", achievements: loadJSON<Achievement[]>("eisenhower-achievements") ?? [] });
-  }, []);
+    const loadData = async () => {
+      if (user) {
+        // User just logged in — check if we need to migrate localStorage data
+        const localTodos = loadTodos();
+        const remoteTodos = await fetchTodos(user.id);
+        const remoteTags = await fetchTags(user.id);
+        const remoteTemplates = await fetchTemplates(user.id);
+        const remoteAchievements = await fetchAchievements(user.id);
 
-  // Persist on change
+        // Migrate localStorage todos if remote is empty and local has data
+        if (remoteTodos.length === 0 && localTodos.length > 0 && prevUserRef.current !== user.id) {
+          // Upload local todos to Supabase
+          for (const todo of localTodos) {
+            await upsertTodo(user.id, todo);
+          }
+          // Upload local tags
+          const localTags = loadJSON<Tag[]>("eisenhower-tags") ?? [];
+          for (const tag of localTags) {
+            await upsertTag(user.id, tag);
+          }
+          // Upload local templates
+          const localTemplates = loadJSON<Template[]>("eisenhower-templates") ?? [];
+          for (const tpl of localTemplates) {
+            await upsertTemplate(user.id, tpl);
+          }
+
+          dispatch({ type: "LOAD", todos: localTodos });
+          dispatch({ type: "SET_TAGS", tags: localTags });
+          dispatch({ type: "SET_TEMPLATES", templates: localTemplates });
+          dispatch({ type: "SET_ACHIEVEMENTS", achievements: remoteAchievements });
+        } else {
+          // Use remote data
+          dispatch({ type: "LOAD", todos: remoteTodos });
+          dispatch({ type: "SET_TAGS", tags: remoteTags });
+          dispatch({ type: "SET_TEMPLATES", templates: remoteTemplates });
+          dispatch({ type: "SET_ACHIEVEMENTS", achievements: remoteAchievements });
+        }
+        prevUserRef.current = user.id;
+      } else {
+        // Not logged in — use localStorage
+        dispatch({ type: "LOAD", todos: loadTodos() });
+        dispatch({
+          type: "SET_TAGS",
+          tags: loadJSON<Tag[]>("eisenhower-tags") ?? [],
+        });
+        dispatch({
+          type: "SET_TEMPLATES",
+          templates: loadJSON<Template[]>("eisenhower-templates") ?? [],
+        });
+        dispatch({
+          type: "SET_ACHIEVEMENTS",
+          achievements: loadJSON<Achievement[]>("eisenhower-achievements") ?? [],
+        });
+        prevUserRef.current = null;
+      }
+
+      dispatch({
+        type: "SET_STREAK",
+        streak:
+          loadJSON<StreakData>("eisenhower-streak") ?? initialState.streak,
+      });
+    };
+
+    loadData();
+  }, [user]);
+
+  // ─── Persist: always save to localStorage, also sync to Supabase if logged in ───
   useEffect(() => {
-    if (state.loaded) saveTodos(state.todos);
+    if (!state.loaded || syncingRef.current) return;
+    saveTodos(state.todos);
   }, [state.todos, state.loaded]);
 
   useEffect(() => {
@@ -262,6 +339,13 @@ export function TodoProvider({ children }: { children: ReactNode }) {
   }, [state.achievements, state.loaded]);
 
   // ─── Callbacks ───
+
+  const syncTodo = useCallback(
+    (todo: Todo) => {
+      if (user) upsertTodo(user.id, todo);
+    },
+    [user]
+  );
 
   const addTodo = useCallback(
     (params: {
@@ -301,41 +385,68 @@ export function TodoProvider({ children }: { children: ReactNode }) {
         tags: params.tags ?? [],
       };
       dispatch({ type: "ADD", todo });
+      syncTodo(todo);
     },
-    [state.todos]
+    [state.todos, syncTodo]
   );
 
   const updateTodo = useCallback(
-    (id: string, updates: Partial<Todo>) =>
-      dispatch({ type: "UPDATE", id, updates }),
-    []
+    (id: string, updates: Partial<Todo>) => {
+      dispatch({ type: "UPDATE", id, updates });
+      // Sync after update
+      const todo = state.todos.find((t) => t.id === id);
+      if (todo && user) {
+        upsertTodo(user.id, { ...todo, ...updates });
+      }
+    },
+    [state.todos, user]
   );
 
   const deleteTodo = useCallback(
     (id: string) => {
       const todo = state.todos.find((t) => t.id === id);
-      if (todo) dispatch({ type: "SET_UNDO", action: { type: "delete", todo } });
+      if (todo)
+        dispatch({ type: "SET_UNDO", action: { type: "delete", todo } });
       dispatch({ type: "DELETE", id });
+      if (user) deleteTodoDb(id);
     },
-    [state.todos]
+    [state.todos, user]
   );
 
   const toggleComplete = useCallback(
     (id: string) => {
       const todo = state.todos.find((t) => t.id === id);
-      if (todo) dispatch({ type: "SET_UNDO", action: { type: "toggle", id, wasCompleted: todo.completed } });
+      if (todo)
+        dispatch({
+          type: "SET_UNDO",
+          action: { type: "toggle", id, wasCompleted: todo.completed },
+        });
       dispatch({ type: "TOGGLE_COMPLETE", id });
+      if (todo && user) {
+        upsertTodo(user.id, {
+          ...todo,
+          completed: !todo.completed,
+          completedAt: !todo.completed ? new Date().toISOString() : null,
+        });
+      }
     },
-    [state.todos]
+    [state.todos, user]
   );
 
   const moveQuadrant = useCallback(
     (id: string, quadrant: Quadrant) => {
       const todo = state.todos.find((t) => t.id === id);
-      if (todo) dispatch({ type: "SET_UNDO", action: { type: "move", id, fromQuadrant: todo.quadrant } });
+      if (todo)
+        dispatch({
+          type: "SET_UNDO",
+          action: { type: "move", id, fromQuadrant: todo.quadrant },
+        });
       dispatch({ type: "MOVE_QUADRANT", id, quadrant });
+      if (todo && user) {
+        upsertTodo(user.id, { ...todo, quadrant });
+      }
     },
-    [state.todos]
+    [state.todos, user]
   );
 
   const reorder = useCallback(
@@ -362,9 +473,10 @@ export function TodoProvider({ children }: { children: ReactNode }) {
         (t) => t.quadrant === quadrant && t.date === date
       );
       const templates = state.todos.filter((t) => t.repeat !== "none");
-      const generated = generateRecurringForDate(templates, parseISO(date)).filter(
-        (g) => g.quadrant === quadrant
-      );
+      const generated = generateRecurringForDate(
+        templates,
+        parseISO(date)
+      ).filter((g) => g.quadrant === quadrant);
       const storedIds = new Set(stored.map((t) => t.id));
       const newInstances = generated.filter((g) => !storedIds.has(g.id));
       return [...stored, ...newInstances].sort((a, b) => a.order - b.order);
@@ -372,14 +484,54 @@ export function TodoProvider({ children }: { children: ReactNode }) {
     [state.todos]
   );
 
-  const addTag = useCallback((tag: Tag) => dispatch({ type: "ADD_TAG", tag }), []);
-  const deleteTag = useCallback((id: string) => dispatch({ type: "DELETE_TAG", id }), []);
-  const addTemplate = useCallback((template: Template) => dispatch({ type: "ADD_TEMPLATE", template }), []);
-  const deleteTemplate = useCallback((id: string) => dispatch({ type: "DELETE_TEMPLATE", id }), []);
-  const setLastAction = useCallback((action: UndoAction | null) => dispatch({ type: "SET_UNDO", action }), []);
+  const addTag = useCallback(
+    (tag: Tag) => {
+      dispatch({ type: "ADD_TAG", tag });
+      if (user) upsertTag(user.id, tag);
+    },
+    [user]
+  );
+
+  const deleteTag = useCallback(
+    (id: string) => {
+      dispatch({ type: "DELETE_TAG", id });
+      if (user) deleteTagDb(id);
+    },
+    [user]
+  );
+
+  const addTemplate = useCallback(
+    (template: Template) => {
+      dispatch({ type: "ADD_TEMPLATE", template });
+      if (user) upsertTemplate(user.id, template);
+    },
+    [user]
+  );
+
+  const deleteTemplate = useCallback(
+    (id: string) => {
+      dispatch({ type: "DELETE_TEMPLATE", id });
+      if (user) deleteTemplateDb(id);
+    },
+    [user]
+  );
+
+  const setLastAction = useCallback(
+    (action: UndoAction | null) => dispatch({ type: "SET_UNDO", action }),
+    []
+  );
   const undo = useCallback(() => dispatch({ type: "UNDO" }), []);
-  const setStreak = useCallback((streak: StreakData) => dispatch({ type: "SET_STREAK", streak }), []);
-  const addAchievement = useCallback((achievement: Achievement) => dispatch({ type: "ADD_ACHIEVEMENT", achievement }), []);
+  const setStreak = useCallback(
+    (streak: StreakData) => dispatch({ type: "SET_STREAK", streak }),
+    []
+  );
+  const addAchievement = useCallback(
+    (achievement: Achievement) => {
+      dispatch({ type: "ADD_ACHIEVEMENT", achievement });
+      if (user) insertAchievement(user.id, achievement);
+    },
+    [user]
+  );
 
   return (
     <TodoContext.Provider
