@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef } from "react";
 import { motion, useMotionValue, useTransform, PanInfo } from "framer-motion";
 
 interface SwipeableTaskProps {
@@ -19,17 +20,30 @@ export default function SwipeableTask({
     [-100, -50, 0, 50, 100],
     [1, 0.5, 0, 0.5, 1]
   );
+  const swiped = useRef(false);
 
   const handleDragEnd = (_: unknown, info: PanInfo) => {
     if (info.offset.x > 80) {
+      swiped.current = true;
       onSwipeRight();
     } else if (info.offset.x < -80) {
+      swiped.current = true;
       onSwipeLeft();
     }
+    // Reset after a tick to block the click event
+    setTimeout(() => { swiped.current = false; }, 100);
   };
 
   return (
-    <div className="relative overflow-hidden rounded-md">
+    <div
+      className="relative overflow-hidden rounded-md"
+      onClickCapture={(e) => {
+        if (swiped.current) {
+          e.stopPropagation();
+          e.preventDefault();
+        }
+      }}
+    >
       {/* Background indicators */}
       <motion.div
         className="absolute inset-0 flex items-center justify-between px-4"
