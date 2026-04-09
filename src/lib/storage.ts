@@ -43,8 +43,8 @@ export type ThemeMode = "system" | "light" | "dark";
 const THEME_KEY = "eisenhower-theme";
 
 export function loadTheme(): ThemeMode {
-  if (typeof window === "undefined") return "system";
-  return (localStorage.getItem(THEME_KEY) as ThemeMode) ?? "system";
+  if (typeof window === "undefined") return "light";
+  return (localStorage.getItem(THEME_KEY) as ThemeMode) ?? "light";
 }
 
 export function saveTheme(theme: ThemeMode): void {

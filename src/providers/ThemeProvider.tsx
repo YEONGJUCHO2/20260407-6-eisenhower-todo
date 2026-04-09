@@ -10,8 +10,8 @@ interface ThemeContextValue {
 }
 
 const ThemeContext = createContext<ThemeContextValue>({
-  theme: "dark",
-  resolved: "dark",
+  theme: "light",
+  resolved: "light",
   setTheme: () => {},
 });
 
@@ -20,7 +20,7 @@ export function useTheme() {
 }
 
 function getSystemTheme(): "light" | "dark" {
-  if (typeof window === "undefined") return "dark";
+  if (typeof window === "undefined") return "light";
   return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
 
@@ -31,7 +31,7 @@ export default function ThemeProvider({ children }: { children: React.ReactNode 
   useEffect(() => {
     const saved = loadTheme();
     setThemeState(saved);
-    const r = saved === "system" ? "dark" : saved;
+    const r = saved === "system" ? getSystemTheme() : saved;
     setResolved(r);
     document.documentElement.setAttribute("data-theme", r);
   }, []);
