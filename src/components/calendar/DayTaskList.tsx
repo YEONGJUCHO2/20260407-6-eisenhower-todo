@@ -329,8 +329,8 @@ export default function DayTaskList({
   };
 
   return (
-    <div className="px-lg mt-6">
-      <h3 className="font-display text-body-lg text-on-surface mb-3">
+    <div className="px-lg">
+      <h3 className="font-display text-body-lg text-on-surface mb-3 sticky top-0 bg-surface z-10 py-2">
         {formatDateKR(selectedDate)}
       </h3>
 

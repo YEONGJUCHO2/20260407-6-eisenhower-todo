@@ -20,16 +20,19 @@ export default function CalendarView({
   const [viewMode, setViewMode] = useState<"day" | "week">("day");
 
   return (
-    <div className="py-4">
-      <CalendarGrid
-        currentMonth={currentMonth}
-        selectedDate={selectedDate}
-        onSelectDate={onSelectDate}
-        onMonthChange={setCurrentMonth}
-      />
+    <div className="flex flex-col" style={{ height: "calc(100dvh - 120px)" }}>
+      {/* Fixed: Calendar grid */}
+      <div className="flex-shrink-0 py-4">
+        <CalendarGrid
+          currentMonth={currentMonth}
+          selectedDate={selectedDate}
+          onSelectDate={onSelectDate}
+          onMonthChange={setCurrentMonth}
+        />
+      </div>
 
-      {/* View mode toggle */}
-      <div className="flex gap-2 px-lg mt-4 mb-2">
+      {/* Fixed: View mode toggle */}
+      <div className="flex-shrink-0 flex gap-2 px-lg mb-2">
         <button
           onClick={() => setViewMode("day")}
           className={`px-3 py-1.5 rounded-full text-[11px] font-medium transition-all ${
@@ -52,11 +55,14 @@ export default function CalendarView({
         </button>
       </div>
 
-      {viewMode === "day" ? (
-        <DayTaskList selectedDate={selectedDate} onTaskTap={onTaskTap} />
-      ) : (
-        <WeeklyTimeline selectedDate={selectedDate} onTaskTap={onTaskTap} />
-      )}
+      {/* Scrollable: Task list */}
+      <div className="flex-1 overflow-y-auto pb-4">
+        {viewMode === "day" ? (
+          <DayTaskList selectedDate={selectedDate} onTaskTap={onTaskTap} />
+        ) : (
+          <WeeklyTimeline selectedDate={selectedDate} onTaskTap={onTaskTap} />
+        )}
+      </div>
     </div>
   );
 }
