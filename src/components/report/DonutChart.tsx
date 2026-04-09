@@ -7,8 +7,6 @@ import { QUADRANTS, QUADRANT_ORDER } from "@/lib/constants";
 
 Chart.register(DoughnutController, ArcElement, Tooltip);
 
-// Hardcoded segment colors — Chart.js cannot resolve CSS variables.
-// These match the design system container colors (the saturated quadrant hues).
 const SEGMENT_COLORS: Record<Quadrant, string> = {
   do: "#ff5451",
   plan: "#0566d9",
@@ -24,14 +22,14 @@ export default function DonutChart({ counts }: DonutChartProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Chart | null>(null);
 
+  const total = Object.values(counts).reduce((a, b) => a + b, 0);
+
   useEffect(() => {
     if (!canvasRef.current) return;
 
     if (chartRef.current) {
       chartRef.current.destroy();
     }
-
-    const total = Object.values(counts).reduce((a, b) => a + b, 0);
 
     chartRef.current = new Chart(canvasRef.current, {
       type: "doughnut",
@@ -52,6 +50,7 @@ export default function DonutChart({ counts }: DonutChartProps) {
         maintainAspectRatio: true,
         cutout: "65%",
         plugins: {
+          legend: { display: false },
           tooltip: {
             callbacks: {
               label: (ctx) => {
@@ -71,24 +70,42 @@ export default function DonutChart({ counts }: DonutChartProps) {
     return () => {
       chartRef.current?.destroy();
     };
-  }, [counts]);
+  }, [counts, total]);
 
   return (
-    <div className="relative w-48 h-48 mx-auto">
-      <canvas ref={canvasRef} />
-      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-        <span
-          className="text-display-md font-display"
-          style={{ color: "var(--color-on-surface)" }}
-        >
-          {Object.values(counts).reduce((a, b) => a + b, 0)}
-        </span>
-        <span
-          className="text-label-sm"
-          style={{ color: "var(--color-outline)" }}
-        >
-          전체 할 일
-        </span>
+    <div>
+      {/* Custom legend — horizontal */}
+      <div className="flex items-center justify-center gap-4 mb-4">
+        {QUADRANT_ORDER.map((q) => (
+          <div key={q} className="flex items-center gap-1.5">
+            <div
+              className="w-3 h-3 rounded-[2px]"
+              style={{ backgroundColor: SEGMENT_COLORS[q] }}
+            />
+            <span className="text-label-sm text-on-surface-variant">
+              {QUADRANTS[q].label}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      {/* Donut with center number */}
+      <div className="relative w-48 h-48 mx-auto">
+        <canvas ref={canvasRef} />
+        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+          <span
+            className="text-display-md font-display"
+            style={{ color: "var(--color-on-surface)" }}
+          >
+            {total}
+          </span>
+          <span
+            className="text-label-sm"
+            style={{ color: "var(--color-outline)" }}
+          >
+            전체 할 일
+          </span>
+        </div>
       </div>
     </div>
   );
