@@ -7,6 +7,15 @@ import { QUADRANTS, QUADRANT_ORDER } from "@/lib/constants";
 
 Chart.register(DoughnutController, ArcElement, Tooltip);
 
+// Hardcoded segment colors — Chart.js cannot resolve CSS variables.
+// These match the design system container colors (the saturated quadrant hues).
+const SEGMENT_COLORS: Record<Quadrant, string> = {
+  do: "#ff5451",
+  plan: "#0566d9",
+  delegate: "#ca8100",
+  delete: "#424754",
+};
+
 interface DonutChartProps {
   counts: Record<Quadrant, number>;
 }
@@ -31,7 +40,7 @@ export default function DonutChart({ counts }: DonutChartProps) {
         datasets: [
           {
             data: QUADRANT_ORDER.map((q) => counts[q]),
-            backgroundColor: QUADRANT_ORDER.map((q) => QUADRANTS[q].primary),
+            backgroundColor: QUADRANT_ORDER.map((q) => SEGMENT_COLORS[q]),
             borderWidth: 0,
             borderRadius: 4,
             spacing: 2,
@@ -67,11 +76,19 @@ export default function DonutChart({ counts }: DonutChartProps) {
   return (
     <div className="relative w-48 h-48 mx-auto">
       <canvas ref={canvasRef} />
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-display-md font-display text-on-surface">
+      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+        <span
+          className="text-display-md font-display"
+          style={{ color: "var(--color-on-surface)" }}
+        >
           {Object.values(counts).reduce((a, b) => a + b, 0)}
         </span>
-        <span className="text-label-sm text-outline">전체 할 일</span>
+        <span
+          className="text-label-sm"
+          style={{ color: "var(--color-outline)" }}
+        >
+          전체 할 일
+        </span>
       </div>
     </div>
   );

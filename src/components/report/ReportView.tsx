@@ -63,14 +63,39 @@ export default function ReportView() {
       lines.push(`## ${quadrantLabels[qId]}\n`);
       qTodos.forEach((t) => {
         const check = t.completed ? "x" : " ";
-        const repeat = t.repeat !== "none" ? " (반복)" : "";
-        lines.push(`- [${check}] ${t.title}${repeat}`);
+
+        // Date in M월 d일 format
+        const taskDate = format(new Date(t.date), "M월 d일", { locale: ko });
+
+        // Time range if available
+        const timeStr =
+          t.startTime && t.endTime
+            ? ` ${t.startTime}-${t.endTime}`
+            : t.startTime
+              ? ` ${t.startTime}`
+              : "";
+
+        // Completion status with completedAt date
+        const completionStr = t.completed
+          ? t.completedAt
+            ? ` ✓ ${format(new Date(t.completedAt), "M월 d일", { locale: ko })} 완료`
+            : " ✓ 완료"
+          : "";
+
+        const repeat = t.repeat !== "none" ? " 🔁" : "";
+
+        lines.push(
+          `- [${check}] ${t.title} (${taskDate}${timeStr})${completionStr}${repeat}`
+        );
       });
       lines.push("");
     });
 
     lines.push(`---`);
     lines.push(`유형: ${stats.personalityType.name}`);
+    lines.push(
+      `완료율: ${weekTodos.length > 0 ? Math.round((weekTodos.filter((t) => t.completed).length / weekTodos.length) * 100) : 0}%`
+    );
 
     const blob = new Blob([lines.join("\n")], { type: "text/markdown" });
     const url = URL.createObjectURL(blob);
