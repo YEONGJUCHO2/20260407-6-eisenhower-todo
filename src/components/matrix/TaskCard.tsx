@@ -44,7 +44,7 @@ export default function TaskCard({ todo, onTap }: TaskCardProps) {
   };
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+    <div ref={setNodeRef} style={{ ...style, touchAction: "none" }} {...attributes} {...listeners}>
       <motion.div
         layout
         className={`rounded-md px-3 py-[10px] flex items-center gap-2 cursor-grab select-none active:cursor-grabbing ${

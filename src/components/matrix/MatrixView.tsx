@@ -34,7 +34,7 @@ export default function MatrixView({ date, onTaskTap, onDateChange }: MatrixView
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
     useSensor(TouchSensor, {
-      activationConstraint: { delay: 200, tolerance: 5 },
+      activationConstraint: { delay: 150, tolerance: 15 },
     })
   );
 

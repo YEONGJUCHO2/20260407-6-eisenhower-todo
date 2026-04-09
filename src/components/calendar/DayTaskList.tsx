@@ -160,12 +160,12 @@ function DraggableBar({
   return (
     <div
       className="absolute top-0 h-full flex items-center"
-      style={{ left: `${leftPct}%`, width: `${widthPct}%` }}
+      style={{ left: `${leftPct}%`, width: `${widthPct}%`, touchAction: "none" }}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
     >
       <div
-        className="w-full h-[32px] rounded-md flex items-center overflow-hidden cursor-grab active:cursor-grabbing shadow-sm relative"
+        className="w-full h-[32px] rounded-md flex items-center overflow-hidden cursor-grab active:cursor-grabbing shadow-sm relative touch-none"
         style={{
           backgroundColor: q.container,
           border: `1px solid color-mix(in srgb, ${q.primary} 40%, transparent)`,
