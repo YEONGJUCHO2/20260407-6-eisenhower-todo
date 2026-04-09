@@ -8,6 +8,7 @@ interface CollapsibleSectionProps {
   label: string;
   summary?: string;
   defaultOpen?: boolean;
+  onToggle?: (open: boolean) => void;
   children: React.ReactNode;
 }
 
@@ -16,15 +17,22 @@ export default function CollapsibleSection({
   label,
   summary,
   defaultOpen = false,
+  onToggle,
   children,
 }: CollapsibleSectionProps) {
   const [open, setOpen] = useState(defaultOpen);
+
+  const handleToggle = () => {
+    const next = !open;
+    setOpen(next);
+    onToggle?.(next);
+  };
 
   return (
     <div className="bg-surface-container-low rounded-[10px] overflow-hidden">
       <button
         type="button"
-        onClick={() => setOpen(!open)}
+        onClick={handleToggle}
         className="w-full flex items-center justify-between px-[14px] py-[10px]"
       >
         <div className="flex items-center gap-2">

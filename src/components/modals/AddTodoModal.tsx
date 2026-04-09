@@ -163,6 +163,7 @@ export default function AddTodoModal({
                 icon="⏰"
                 label="시간 설정"
                 summary={hasTime ? `⏰ ${startTime} → ${endTime}` : undefined}
+                onToggle={(open) => setHasTime(open)}
               >
                 <TimePicker
                   startTime={startTime}
@@ -170,7 +171,6 @@ export default function AddTodoModal({
                   onChange={(s, e) => {
                     setStartTime(s);
                     setEndTime(e);
-                    setHasTime(true);
                   }}
                 />
               </CollapsibleSection>
