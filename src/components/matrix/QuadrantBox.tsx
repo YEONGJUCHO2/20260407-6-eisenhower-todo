@@ -52,7 +52,7 @@ export default function QuadrantBox({
             className="w-2 h-2 rounded-full"
             style={{ backgroundColor: q.primary }}
           />
-          <span className="text-body-sm font-semibold text-on-surface">
+          <span className="text-body-sm md:text-body-lg font-semibold text-on-surface">
             {q.label}
           </span>
           {activeCount > 0 && (
@@ -62,7 +62,7 @@ export default function QuadrantBox({
           )}
         </div>
         <span
-          className="text-label-sm uppercase text-on-surface-variant/50"
+          className="text-label-sm md:text-label-lg uppercase text-on-surface-variant/50"
           style={{ letterSpacing: "0.1em" }}
         >
           {q.sublabel}
@@ -77,8 +77,8 @@ export default function QuadrantBox({
         <div className="flex-1 min-h-0 overflow-y-auto quadrant-scroll px-2 pb-2 space-y-sm">
           {todos.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-6 text-center">
-              <p className="text-body-sm text-outline">{q.emptyTitle}</p>
-              <p className="text-label-sm text-outline/60 mt-1">
+              <p className="text-body-sm md:text-body-md text-outline">{q.emptyTitle}</p>
+              <p className="text-label-sm md:text-body-sm text-outline/60 mt-1">
                 {q.emptySub}
               </p>
             </div>

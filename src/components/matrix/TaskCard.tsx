@@ -86,11 +86,11 @@ export default function TaskCard({ todo, onTap }: TaskCardProps) {
             todo.completed ? "line-through opacity-60" : ""
           }`}
         >
-          <span className="text-body-sm text-on-surface truncate block">
+          <span className="text-body-sm md:text-body-md text-on-surface truncate block">
             {todo.title}
           </span>
           {todo.startTime && todo.endTime && (
-            <span className="text-[11px] text-on-surface-variant">
+            <span className="text-[11px] md:text-body-sm text-on-surface-variant">
               {todo.startTime} - {todo.endTime}
             </span>
           )}
